@@ -1,1 +1,1 @@
-# sp22-cs61c-notes
+# CS 61C Course Notes (Spring 2022)
