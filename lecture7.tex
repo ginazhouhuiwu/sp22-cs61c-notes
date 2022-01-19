@@ -1,0 +1,18 @@
+\chapter{RISC-V Functions}
+\section{}
+
+6 Basic Steps in Calling a Function
+\begin{enumerate}
+    \item Put arguments in registers where function can access them
+    \item Transfer control to function
+    \item Acquire local storage needed for function
+    \item Perform function's desired task
+    \item Put return value in a place where calling code can access it and restore any registers used; release local storage
+    \item Return control to point of origin
+\end{enumerate}
+
+Register Conventions
+\begin{enumerate}
+    \item Saved registers: preserved across function call, i.e. caller can rely on values being unchanged
+    \item Temporary registers: not preserved across function call  
+\end{enumerate}
