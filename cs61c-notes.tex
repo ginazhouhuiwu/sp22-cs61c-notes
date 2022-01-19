@@ -7,9 +7,12 @@
 %    Free Documentation License".
 %    https://github.com/simontheflutist/cs61c-notes
 
-\documentclass[10pt,article,oneside]{memoir}
+\documentclass[10pt, article, oneside]{memoir}
 
-\usepackage[protrusion, expansion,kerning,tracking,spacing]{microtype}
+\renewcommand{\chaptitlefont}{\normalfont\LARGE\bfseries}
+\renewcommand\labelitemi{-}
+
+\usepackage[protrusion, expansion, kerning, tracking, spacing]{microtype}
 
 \usepackage[utf8]{inputenc}
 %\usepackage{euler}
@@ -33,7 +36,7 @@
 \microtypecontext{spacing=nonfrench}
 \nonfrenchspacing
 
-\title{CS 61C Notes}
+\title{\textbf{CS61C Notes}}
 \author{Gina Wu}
 \date{Spring 2022}
     
