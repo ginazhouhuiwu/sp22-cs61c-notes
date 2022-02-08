@@ -1,26 +1,35 @@
 \chapter{C Intro - Pointers, Arrays, Strings (Jan 25, 2022)}
-\section{Pointers}
 
+\section{Pointers}
 Consider memory to be a single huge array, in which each cell stores some value.
 
 \begin{itemize}
     \item An \emph{address} refers to a particular memory location, represented by signed numbers.
     \item A \emph{pointer} is a variable that contains the address of a variable.
-    \item WARNING: Declaring a pointer allocates space to hold the pointer, it does NOT allocate the thing being pointed to.
+    \item Advantages: Faster \& more efficient to pass a pointer than a block of data; cleaner \& more compact code; low-level access
+    \item Disadvantages: Extremely buggy (especially with dynamic memory management); memory leaks
+\end{itemize}
+
+\subsection{C Pointer Dangers}
+\begin{itemize}
+    \item \underline{WARNING}: Declaring a pointer allocates space to hold the pointer, it does NOT allocate the thing being pointed to.
+    \item Local variables in C are NOT initialized \(\rightarrow\) may contain garbage
 \end{itemize}
 
 \subsection{Pointer Syntax}
 \begin{minted}[tabsize=4]{c}
-    int *p;     // p is an address of a int
-    int x = 3;  // x is an int
-    p = &x;     // p points to address of x
-                // & = "reference" operator
-    int y = *p; // y gets the value p points to
-                // * = "dereference" operator
-    *p = 5;    // update the memory location p points to (x = 5)
+    int *p;         // p is an address of a int
+    int x = 3;      // x is an int
+    p = &x;         // p points to address of x
+    int y = *p;     // y gets the value p points to
+    *p = 5;         // update the memory location p points to (x = 5)
 \end{minted}
+\begin{itemize}
+    \item \& = "reference" operator (grab the address)
+    \item * = "dereference" operator (follow the pointer)
+\end{itemize}
 
-\subsection{Pointers to struct}
+\subsection{Pointers to \texttt{struct}}
 \begin{minted}{c}
     typedef struct { int x, y; } Point;
     Point p;        // initialize point object
@@ -37,9 +46,9 @@ Consider memory to be a single huge array, in which each cell stores some value.
 \subsection{Casting}
 Casting pointers only changes how they are interpreted.
 \begin{minted}{c}
-void foo(void *v) {
-    ((Point *) v)->x = 10;
-}
+    void foo(void *v) {
+        ((Point *) v)->x = 10;
+    }
 \end{minted}
 
 \begin{itemize}
@@ -47,186 +56,109 @@ void foo(void *v) {
     \item If \texttt{v} is a pointer to some other type of data \(\implies\) undefined behavior.
 \end{itemize}
 
+\subsection{Pointers to Functions}
+\begin{minted}{c}
+    int (*fn) (void *, void *) = &foo
+\end{minted}
+
+\begin{itemize}
+    \item \texttt{fn} initially points to the function \texttt{foo}; it is a function that accepts two void * pointers and returns an int
+    \item \texttt{(*fn)(x, y)} calls the function
+\end{itemize}
+
+\subsection{Pointer Arithmetic}
+Implicitly adds \texttt{1 * sizeof(type)} to the memory address.
+\begin{itemize}
+    \item \texttt{sizeof()} Operator: Compile time operation that returns number of bytes in object.
+\end{itemize}
+
 \subsection{Pointers as function arguments}
 \begin{minted}{c}
-void f(int x, int *p) {
-	// does nothing outside
-	x = 5;
-	// changes outside!!
-	*p = -9;
-}
+    void f(int x, int *p) {
+    	x = 5;      // does nothing outside
+    	*p = -9;    // changes outside!
+    }
 
-// e.g.
-int a = 1, b = -3;
-f(a, &b);
-// now a = 1 but b = -9.
+    int a = 1, b = -3;
+    f(a, &b);       // now a = 1 but b = -9.
 \end{minted}
 
 \section{Arrays}
-An array name is not a variable.
 \begin{itemize}
-	\item To allocate:
-		\begin{minted}[autogobble]{c}
-		// allocate space
-		// unknown content
-		int a[5];
-		
-		// can also initialize at the same time
-		int b = { 3, 2, 1 };
-		\end{minted}
-	\item Array elements are matched sequentially in memory.
-	\item C doesn't check array bounds; if you read too far you'll get junk.
-	\item Define array size using a constant! (not a literal)
-	\begin{itemize}
-		\item Bad:
-			\begin{minted}[autogobble]{c}
-				int i, ar[10];
-				for(i = 0; i < 10; i++);
-			\end{minted}
-		\item Good:
-			\begin{minted}[autogobble]{c}
-			const int ARRAY_SIZE;
-			int i, ar[ARRAY_SIZE];
-			for(i = 0; i < ARRAY_SIZE; i++);
-			\end{minted}
-	\end{itemize}
-	\item \texttt{sizeof} works on bounds!
-		\begin{minted}[autogobble]{c}
-			int array[5];
-			// evaluates to 20:
-			sizeof(array);
-		\end{minted}
-		
-		but can be awkward on a \texttt{struct} because of padding:
-		\begin{minted}[autogobble]{c}
-			// should take up 2 + 2 bytes right???
-			struct { short a; char c; } s;
-			// evaluates to 4!
-			sizeof(s);
-		\end{minted}
+    \item An array name is NOT a variable, but a \emph{pointer} to the 0th element.
+    \item Maintain a single source of truth: avoid multiple copies of literals by defining array size as a constant.
+    \begin{minted}{c}
+    // Bad pattern
+    int i, ar[10];
+    for(i = 0; i < 10; i++){ ... }
+    
+    // Better pattern
+    const int ARRAY_SIZE = 10;
+    int i, a[ARRAY_SIZE];
+    for(i = 0; i < ARRAY_SIZE; i++){ ... }
+    \end{minted}
+	\item C doesn't check array bounds: if you read too far you will get garbage.
 \end{itemize}
-
-\section{Pointer arithmetic}
-\subsection{\texttt{char} example}
-\begin{minted}{c}
-#include <stdio.h>
-
-int main(void) {
-	char c[] = { 'a', 'b' };
-	
-	// c[] already is a pointer! (char[] = char*)
-	char *pc = c;
-	
-	// advance pc to the next location in the array
-	pc++;
-	
-	/*
-		(pc - c) is 1.
-	*/
-	
-	int i[] = { 10, 20 };
-	int *pi = i;
-	pi++;
-	/*
-		(pi - i) is 4.
-	*/
-}
-\end{minted}
-Pointer value is in bytes, but pointer arithmetic is in units of \texttt{sizeof(pointed\_to\_type)}.
-
-\subsection{Array name/pointer duality}
-\texttt{char *pstr} and \texttt{char astr[]} are about the same, except \texttt{astr++} is illegal (as though it were constant).
-The reason you can't mutate the array reference variable is that it's not a ``real'' variable but just a compiler name.
 
 \subsection{Arrays as arguments}
-\emph{An array is always passed as a pointer!} You need to pass in the size of the array, as \texttt{sizeof} will just evaluate to the size of the pointer representation (e.g.~32/64 bits).
+An array is always passed as a \emph{pointer} You need to pass in the \emph{size} of the array, as \texttt{sizeof} will just evaluate to the size of the pointer representation (e.g.~32/64 bits).
 
-
-\subsection{C dialects}
+\subsection{Array Name/Pointer Duality}
+\texttt{char *pstr} and \texttt{char astr[]} are about nearly the same, except \texttt{astr++} is illegal (as though it were constant). We cannot mutate the array reference variable is that it is not a variable but just a compiler name.
 \begin{itemize}
-	\item GCC supports this:
+    \item \texttt{ar[32]}: array variable with 32 elements, works like a pointer
+    \item \texttt{ar[0]}: same as \texttt{*ar}
+    \item \texttt{ar[i]}: same as \texttt{*(ar+i)}
+\end{itemize} 
+
+\subsection{Arrays, Structures, and Pointers}
 \begin{minted}{c}
-int main(void) {
-	const int SZ = 5;
-	int a[SZ];
-	//  etc.
-}
-\end{minted}
-	\item But the official way is to do this:
-\begin{minted}{c}
-#define SZ 5
-int main(void) {
-	int a[SZ];
-	//  etc.
-}
-\end{minted}
-\end{itemize}
-
-\subsection{Preprocessor commands}
-\begin{itemize}
-	\item Comments replaced with single space.
-	\item \texttt{\#include "file.h"} inserts all of {inserts all of the file}.
-	\item \texttt{\#include <stdio.h>} \ldots
-	\item \texttt{\#define M\_PI (3.14159)} to define a constant.
-	\item \texttt{\#if}, \texttt{\#endif}, etc.\ for conditional compilation.
-	\item \texttt{-{}-save-temps} with GCC to show the \texttt{*.i} preprocessed file.
-\end{itemize}
-
-\subsection{Typed variables}
-\begin{itemize}
-	\item \texttt{int}, \texttt{long}, \texttt{double}, etc.
-	\item \texttt{const} variables never change.
-	\item \texttt{enum}:
-	
-	\begin{minted}{c}
-		typedef enum {red, green, blue} Color;
-		Color pants = green;
-		switch (pants) {
-			case red:
-				// ...
-				break;
-			// ...
-		}
-	\end{minted}
-	\item \texttt{int} size:\begin{description}
-		\item[Python] 32/\(\infty\)
-		\item[Java] 32
-		\item[C] 16 or 32 or 64
-	\end{description}
-	
-	Maybe helps processor work more efficiently---could all be 32!
-	
-	\begin{align*}
-		\text{short} \leq \text{int} \leq \text{long} \leq \text{long long}
-	\end{align*}
-	\item No boolean datatype in C.
-		\begin{minted}{c}
-			typedef int boolean;
-			const boolean false = 0;
-			const boolean true = 1;
-		\end{minted}
-		
-		0 and \texttt{NULL} are false; everything else is true.
-\end{itemize}
-
-\subsection{Functions}
-\begin{itemize}
-	\item Like Java.
-	\item Declare return and argument types.
-	\item \texttt{void} means nothing is returned.
-	\item Functions \emph{must} be declared before they are used.
-\end{itemize}
-
-\subsection{Undefined variables}
-\begin{minted}{c}
-	randomly_junk_the_stack();
-	// ...
-	int x;  // x is UNDEFINED
-	printf("x = %d\n", x);  // prints jink
+    typedef struct bar {
+     char *a;       // A pointer to a character 
+     char b[18];    // A statically sized array of characters
+    } Bar;
+    ...
+    Bar *b = (Bar*) malloc(sizeof(struct bar));
+    b->a = malloc(sizeof(char) * 24);
 \end{minted}
 
-\subsection{\texttt{struct}s in C}
 \begin{itemize}
-	\item Groups of variables.
-	\item Like Java classes, but no methods.
+    \item Requires 24 bytes on a 32b arch: 4 bytes (pointer a) + 18 bytes (18-char array b) + 2 bytes (padding)
+\end{itemize}
+
+Examples:
+\begin{itemize}
+    \item \texttt{b->b[5] = 'd'}
+    \begin{itemize}
+        \item \texttt{b} field starts on the 4th byte
+        \item Location written to the 10th byte pointed to by \texttt{b}: \\
+        \texttt{*((char *) b + 4 + 5) = 'd'}
+    \end{itemize}
+    
+    \item \texttt{b->a[5] = 'c'} 
+    \begin{itemize}
+        \item Location written to the first word pointed to by \texttt{b} treated as a pointer and advanced by 5: \\ \texttt{*(*((char **) b) + 5) = 'c'}
+    \end{itemize}
+    
+    \item \texttt{b->a = b->b} 
+    \begin{itemize}
+        \item Location written to the first word pointed to by \texttt{b}: \\
+        \texttt{*((char **)b) = ((char *) b) + 4}
+    \end{itemize}
+\end{itemize}
+
+\section{C Strings}
+A string in C is simply an array of characters, where the last character is followed by a \emph{null terminator} (0 byte).
+
+\subsection{Arguments to \texttt{main}}
+\begin{minted}{c}
+int main(int argc, char * argv[]);
+\end{minted}
+\begin{itemize}
+	\item \texttt{argc} is the \emph{number} of commands
+	\item \texttt{argv} points to an array of strings.
+		\begin{itemize}
+			\item pointer to an array of pointers!
+			\item \texttt{argv[0]} is the name of the executable.
+		\end{itemize}
 \end{itemize}

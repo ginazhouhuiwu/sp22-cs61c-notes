@@ -6,9 +6,15 @@ C is a low-level language whose lack of restrictions and generality make it effe
 \subsection{Compilation}
 C compilers map C programs directly into architecture-specific machine code (string of 1s and 0s).
 
-\begin{itemize}
-    \item Advantage: Optimizes for a given architecture \(\implies\) excellent runtime performance
-    \item Disadvantage: Compiled files are architecture-specific \(\implies\) executable must be rebuilt on each new system (porting)
-\end{itemize}
+\begin{description}
+    \item[Overview] Two part process of compiling source files (.c) to object files (.o), then linking the .o files into executables.
+
+    C source files (.c) \(\rightarrow\) [Compiler/assembler] \(\rightarrow\) Machine code object files \& Prebuilt object file libraries (.o) \(\rightarrow\) [Linker] \(\rightarrow\) Machine code executable file (.out)
+    
+    \begin{itemize}
+        \item Advantage: Optimizes for a given architecture \(\implies\) excellent runtime performance
+        \item Disadvantage: Compiled files are architecture-specific \(\implies\) executable must be rebuilt on each new system (porting)
+    \end{itemize}
+\end{description}
 
 

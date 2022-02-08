@@ -1,5 +1,118 @@
-\chapter{C Memory Management}
-\section{Pointers in C}
+\chapter{C Memory Management (Jan 27, 2022)}
 
-load from memory to register
-store to memory from register
+\section{Endianness}
+The endianness of a system decides how multibyte blocks are stored in memory.
+\begin{minted}{c}
+    union confuzzle { int a; char b[4]; };
+    union confuzzle foo;
+    foo.a = 0x12345678;
+\end{minted}
+In a 32b architecture, what would \texttt{foo.b[0]} be?
+\begin{itemize}
+    \item Big-endian: \emph{Most} significant byte of a word at the smallest memory address (first character): \texttt{0x12}.
+     
+    \item Little-endian: \emph{Least} significant byte of a word at the smallest memory address: \texttt{0x78}.
+\end{itemize}
+
+\section{Memory Allocation}
+\begin{tabular}{ll}
+	Address & Contents\\\hline
+	FFFF\,FFFFF & stack (grows down)\\
+	\(\vdots\) & \(\vdots\) \\
+	? & heap (grows up) \\
+	? & static data (mutable) \\
+	0000\,0000 & code (immutable)
+\end{tabular}
+\begin{description}
+	\item[code] does not change.
+	\item[static data] loaded when program starts, \emph{can} be modified.
+	\item[stack] local args, allocated when function is called, grows downward (from higher to lower addresses).
+		\begin{itemize}
+			\item \emph{stack pointer} is a register that moves down with deepening calls to track where the last frame is
+		\end{itemize}
+	\item[heap] space for dynamic data, allocated and freed as needed.
+\end{description}
+
+\section{Heap}
+\begin{description}
+    \item[\texttt{void *malloc(size\_t n)}] Allocate a block of \emph{uninitialized} memory.
+    \begin{itemize}
+        \item Note: Subsequent calls probably will not yield adjacent blocks.
+    \end{itemize}
+    
+    \item[\texttt{void free(void *p)}] \texttt{p} is a pointer containing an address originally returned by \texttt{malloc()}.
+    
+    \item[\texttt{void *calloc(size\_t nmem, size\_t size)}] Allocates \texttt{(nmem * size)} bytes and initialize all memory in it to 0.
+    
+    \item[\texttt{void *realloc(void *p, size\_t size)}] Resize a previously allocated block at \texttt{p} to a new size.
+    \begin{itemize}
+        \item Will NOT update other pointers pointing to the same block of memory.
+    \end{itemize}
+\end{description}
+
+\subsection{Strings}
+We can copy a string by finding the length, allocating a new array, and calling strcpy.
+\begin{minted}{c}
+    /* add 1 for null terminator 
+    since strlen does not include it */
+    a = malloc(sizeof(char) * (strlen(b) + 1) ); 
+    strcpy(a, b) or strncpy(a, b, strlen(b) + 1); 
+\end{minted}
+
+
+\section{Stack}
+Contents of a stack frame:
+\begin{itemize}
+			\item function arguments
+			\item local variables
+			\item who called me? (for a return)
+		\end{itemize}
+		
+\section{Alignment}
+Default alignment rules centered around a 32b architecture:
+\begin{itemize}
+    \item char: 1 byte, unaligned
+    \item short: 2 bytes, 1/2 world aligned (0, 2, 4, ...)
+    \item int, pointers: 4 bytes, word aligned
+\end{itemize}
+
+\section{Bit Operations}
+\begin{itemize}
+    \item \(\mid\) : turns bits ON
+    \item \& : turns bits OFF
+    \item \^ \space \space: FLIPS bits
+    \item a << b : shift value of a to the left by b bits \(\implies\) multiplying by \(2^b\)
+    \item a >> b : shift value of a to the right by b bits \(\implies\) NOT quite the same as dividing by \(2^b\) due to rounding
+    \begin{itemize}
+        \item If a is signed, sign extend (copy MSB)
+        \item If a is unsigned, zero extend
+    \end{itemize}
+\end{itemize}
+
+\subsection{Basic Operations}
+\begin{minted}{c}
+    /* Returns the Nth bit of X. */
+    unsigned get_bit(unsigned x, unsigned n) {
+        return (x >> n) & 1;
+    }
+    
+    /* Clears the Nth bit of the value of x to 0. */
+    void clear_bit(unsigned *x, unsigned n) {
+        *x &= ~(1 << n);
+    }
+    
+    /* Sets the Nth bit of the value of x to 1. */
+    void set_bit(unsigned *x, unsigned n) {
+        *x |= (v << n);
+    }
+    
+    /* Flips the Nth bit in X. */
+    void flip_bit(unsigned *x, unsigned n) {
+        *x ^= (1 << n);
+    }
+    
+    /* Changes the Nth bit of the value of x to v. */
+    void change_bit(unsigned *x, unsigned n, unsigned v) {
+        *x = (*x & ~(1 << n)) | (v << n);
+    }
+\end{minted}
