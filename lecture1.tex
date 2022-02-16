@@ -1,4 +1,4 @@
-\chapter{Intro, Number Representation (Jan 18, 2022)}
+\chapter{Intro, Number Representation}
 
 \section{Great Ideas in Computer Architecture}
 \begin{enumerate}
@@ -40,7 +40,7 @@ Flip the bits of the positive number to form the negative counterpart.
 \end{itemize}
 
 \subsection{Two's Complement} 
-Shift the number line of One's Complement by 1 to obtain just 1 zero.
+Shift the number line of one's complement by 1 to obtain just 1 zero.
 \begin{itemize}
 	\item Negation: flip all bits and add 1
 	\item Range of negative values (shifted right by 1 compared to One's Complement): \([-(2^{n-1}), 0]\)
@@ -66,3 +66,27 @@ Interpret the number as an unsigned integer and shift the number by the bias s.t
     \item Total range: \([-(2^{n-1}-1), 2^{n-1}]\)
 \end{itemize}
 
+\section{Number System Conversion
+}
+
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ \textbf{Decimal} & \textbf{Hex} & \textbf{Binary} \\ 
+ \hline
+ 1 & 1 & 0001 \\
+ 2 & 2 & 0010 \\
+ 3 & 3 & 0011 \\
+ 4 & 4 & 0100 \\
+ 5 & 5 & 0101 \\
+ 6 & 6 & 0110 \\
+ 7 & 7 & 0111 \\
+ 8 & 8 & 1000 \\
+ 9 & 9 & 1001 \\
+ 10 & A & 1010 \\
+ 11 & B & 1011 \\
+ 12 & C & 1100 \\
+ 13 & D & 1101 \\
+ 14 & E & 1110 \\
+ 15 & F & 1111 \\
+ \hline
+\end{tabular}

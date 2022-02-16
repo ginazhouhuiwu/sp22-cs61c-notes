@@ -1,4 +1,4 @@
-\chapter{C Memory Management (Jan 27, 2022)}
+\chapter{C Memory Management}
 
 \section{Endianness}
 The endianness of a system decides how multibyte blocks are stored in memory.
@@ -24,13 +24,13 @@ In a 32b architecture, what would \texttt{foo.b[0]} be?
 	0000\,0000 & code (immutable)
 \end{tabular}
 \begin{description}
-	\item[code] does not change.
-	\item[static data] loaded when program starts, \emph{can} be modified.
-	\item[stack] local args, allocated when function is called, grows downward (from higher to lower addresses).
+	\item[Code:] does not change.
+	\item[Static Data:] loaded when program starts, \emph{can} be modified.
+	\item[Stack:] local args, allocated when function is called, grows downward (from higher to lower addresses).
 		\begin{itemize}
 			\item \emph{stack pointer} is a register that moves down with deepening calls to track where the last frame is
 		\end{itemize}
-	\item[heap] space for dynamic data, allocated and freed as needed.
+	\item[Heap:] space for dynamic data, allocated and freed as needed.
 \end{description}
 
 \section{Heap}

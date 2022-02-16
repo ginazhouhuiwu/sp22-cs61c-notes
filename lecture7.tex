@@ -1,18 +1,119 @@
-\chapter{RISC-V Functions}
-\section{}
+\chapter{RISC-V Instructions, Functions}
+\section{Program Counter}
+PC is a register that holds the byte address of the next instruction to be executed. To move to the next instruction, the processor default increments PC by 4 bytes.
 
-6 Basic Steps in Calling a Function
+\section{Jump}
+What if we want PC to execute a function at a different location? Jump instructions need to do two things:
 \begin{enumerate}
-    \item Put arguments in registers where function can access them
-    \item Transfer control to function
-    \item Acquire local storage needed for function
-    \item Perform function's desired task
-    \item Put return value in a place where calling code can access it and restore any registers used; release local storage
-    \item Return control to point of origin
+    \item Store the return address
+    \item Update the value of the PC
 \end{enumerate}
 
-Register Conventions
+\begin{description}
+    \item[JAL:] \texttt{jal rd, label}
+    
+    "Link" means forming an \emph{address} or \emph{link} that points to the calling site to allow function to return to proper address. "Jump" simultaneously goes to the desired function and saves the address of the following instruction in \texttt{ra}. The label that we want to jump to gets translated by the assembler to a \emph{20-bit offset}.
+    \begin{itemize}
+        \item rd = return address
+        \item PC = PC + offset
+    \end{itemize}
+    
+    \item[Jump Pseudo Instruction:] \texttt{jal x0, label} $\rightarrow$ \texttt{j label}
+    
+    Return address not saved.
+    
+    \item[JALR:] \texttt{jalr rd, rs, imm}
+    
+    When returning from a function, the return address will be stored in a register.
+    \begin{itemize}
+        \item PC = [rs] + imm
+    \end{itemize}
+    
+    \item[Jump Register Pseudo Instruction:] \texttt{jalr x0, ra, 0} $\rightarrow$ \texttt{jr ra} $\rightarrow$ \texttt{ret}
+    
+    \begin{itemize}
+        \item PC = [ra]
+    \end{itemize}
+\end{description}
+
+\subsection{Return Address Register}
+\begin{itemize}
+    \item Standard convention: Designate register \texttt{x1} (i.e. \texttt{ra}) to hold return address.
+    \item We need a return address when jumping to a function.
+    \item We don't need a return address when jumping in a loop or branch $\implies$ specify \texttt{x0} as destination register to avoid saving the return address.
+\end{itemize}
+
+\section{Six Fundamental Steps in Calling a Function}
+\begin{enumerate}
+    \item Put arguments in registers where function can access them
+        \begin{itemize}
+            \item Put parameters in argument registers
+        \end{itemize}
+    \item Transfer control to function
+        \begin{itemize}
+            \item With a jump instruction
+        \end{itemize}
+    \item Acquire (local) storage needed for function
+        \begin{itemize}
+            \item Make room for local variables on stack
+        \end{itemize}
+    \item Perform function's desired task
+    \item Put return value in a place where calling code can access it and restore any registers used; release local storage
+        \begin{itemize}
+            \item \texttt{a0-a1} register
+        \end{itemize}
+    \item Return control to point of origin
+        \begin{itemize}
+            \item \texttt{ret}
+        \end{itemize}
+\end{enumerate}
+
+\section{Function Call Conventions}
+RISC-V divides registers into two categories:
+\begin{enumerate}
+	\item Preserved across function call (\emph{callee} must restore before returning):
+		\begin{itemize}
+			\item \texttt{sp} (\emph{stack pointer})
+			\item \texttt{gp} (\emph{global pointer})
+			\item \texttt{s0-11} (\emph{saved registers})
+		\end{itemize}
+	\item Not preserved across function call (\emph{caller} must save them for free usage):
+		\begin{itemize}
+			\item \texttt{a0-7} (\emph{argument/return registers})
+			\item \texttt{ra} (\emph{return address})
+			\item \texttt{t0-6} (\emph{temporary registers})
+		\end{itemize}
+\end{enumerate}
+
+\begin{tabular}{ |c|c|c|c| } 
+ \hline
+ \textbf{Register} & \textbf{Name} & \textbf{Description} & \textbf{Saved By} \\ 
+ \hline
+ \texttt{x0} & \texttt{zero} & Always Zero & N/A \\
+ \texttt{x1} & \texttt{ra} & Return Address & Caller \\
+ \texttt{x2} & \texttt{sp} & Stack Pointer & Callee \\
+ \texttt{x3} & \texttt{gp} & Global Pointer & N/A \\
+ \texttt{x4} & \texttt{tp} & Thread Pointer & N/A \\
+ \texttt{x5-7} & \texttt{t0-2} & Temporaries & Caller \\
+ \texttt{x8-9} & \texttt{s0-1} & Saved Registers & Callee \\
+ \texttt{x10-17} & \texttt{a0-7} & Argument Registers & Caller \\
+ \texttt{x18-27} & \texttt{s2-11} & Saved Registers & Callee \\
+ \texttt{x28-31} & \texttt{t3-6} & Temporaries & Caller \\
+ \hline
+\end{tabular}
+
+\subsection{Registers}
 \begin{enumerate}
     \item Saved registers: preserved across function call, i.e. caller can rely on values being unchanged
     \item Temporary registers: not preserved across function call  
 \end{enumerate}
+
+\section{Stack}
+When calling another function, the \emph{caller} saves automatic (local) variables onto the stack so the values don't get overwritten. Before returning from a function, the \emph{callee} restores such values.
+
+\subsection{Stack Pointer}
+The SP is a register that holds the memory address of the last item's location. Convention is to grow stack down from high to low addresses, i.e. when stack increases, SP address decreases.
+\begin{itemize}
+    \item \texttt{PUSH}: Decrement the SP when placing an item.
+    \item \texttt{POP}: Increment the SP when taking an item off.
+\end{itemize}

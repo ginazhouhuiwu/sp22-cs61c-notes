@@ -1,5 +1,113 @@
-\chapter{Floating Point}
-\section{}
+\chapter{Assembly Intro - RISC-V}
 
-load from memory to register
-store to memory from register
+\section{Assembly Language}
+
+The basic job of a CPU (Central Processing Unit) is to execute \emph{instructions} sequentially. The set of instructions that a particular CPU can execute is called its Instruction Set Architecture (ISA).
+
+\subsection{RISC-V (Reduced Instruction Set Computer)}
+A single instruction can only perform one operation $\implies$ keeps the instruction set small and simple for faster hardware.
+
+\section{Registers}
+Assembly languages use \emph{registers} rather than \emph{variables}. Registers are small storage units inside the CPU. Operations can only be performed on these and they are extremely fast because they are built directly in hardware.
+\begin{itemize}
+    \item RISC-V has 32 registers (32-bit variant) labeled \texttt{x0}--\texttt{x31}.
+    \item Each register stores 4 bytes (128 bytes total).
+    \item Groups of 32 bits is a \emph{word}.
+    \item Unlike variables, registers do not have type.
+\end{itemize}
+
+
+
+\section{RISC-V Instructions}
+Syntax is rigid: Operator $\rightarrow$ destination register $\rightarrow$ 2 source registers.
+
+\subsection{Immediates}
+\begin{enumerate}
+	\item Immediates are numerical constants.
+	\begin{minted}[autogobble]{asm}
+	    addi x3, x4, -10  # f = g - 10
+	\end{minted}
+	\item Register zero \texttt{x0} is hard-wired to value 0.
+	\begin{minted}[autogobble]{asm}
+	    add x3, x4, x0  # f = g
+	\end{minted}
+\end{enumerate}
+
+\subsection{Data Transfer}
+\begin{itemize}
+    \item We \emph{load from} memory to register and \emph{store to} memory from register (left to right).
+    \item Memory addresses are in \emph{bytes} $\implies$ word addresses are 4 bytes apart.
+    \item Little-endian convention: Word address is the same as address of rightmost (least-significant) byte.
+\end{itemize}
+
+\begin{description}
+    \item[Load From:] $\texttt{lw dest\_reg offset(base\_reg)}$
+    \begin{itemize}
+        \item Data flow is right to left.
+    \end{itemize}
+    \begin{minted}[autogobble]{c}
+		int A[100];
+		g = h + A[3];
+	\end{minted}
+		$\qquad \downarrow$
+	\begin{minted}[autogobble]{asm}
+		lw x10, 12(x13)  # reg x10 gets A[3] (A + 4 words)
+		add x11, x12, 10 # g = h + A[3]
+	\end{minted}
+	
+	\item[Store To:] $\texttt{sw dest\_reg offset(base\_reg)}$
+	\begin{itemize}
+        \item Data flow is left to right.
+    \end{itemize}
+    \begin{minted}[autogobble]{C}
+		int A[100];
+		A[10] = h + A[3];
+	\end{minted}
+		$\qquad \downarrow$
+	\begin{minted}[autogobble]{asm}
+		lw x10, 12(x13)    # temp reg x10 gets A[3]
+		add x10, x12, x10  # temp reg x10 gets h + A[3]
+		sw x10, 40(x13)    # A[10] = h + A[3]
+	\end{minted}
+	
+	\item[Loading and Storing Bytes:] $\texttt{lb}$ and $\texttt{sb}$ transfer data at the byte level.
+	\begin{itemize}
+	    \item When a byte is loaded from memory, it is placed into the lowest byte of the destination register and sign extended.
+	    \item When a bite is stored, only the lower 8 bits of the register is copied to memory and there is no sign extension.
+	\end{itemize}
+\end{description}
+
+\subsection{Branch Instructions (Decision Making)}
+We use \emph{labels} to give control flow instructions places to go.
+\begin{enumerate}
+    \item Condition branch: Only branch if some condition is met (e.g. $\texttt{beq}$, $\texttt{bne}$, $\texttt{blt}$, $\texttt{bge}$).
+    \item Unconditional branch: Always branch (e.g. $\texttt{j label}$)
+\end{enumerate}
+
+\subsection{Loop example}
+Assume \texttt{x8} holds the address of the array.
+\begin{multicols}{2}
+	\begin{minted}{c}
+    int A[20];
+    int sum = 0;
+    for (int i = 0; i < 20; i++)
+    	sum += A[i]
+	\end{minted}
+	
+	\columnbreak
+	
+	\begin{minted}{asm}
+	addi x9, x8, 0    # x9 = &A[0]
+	addi x10, x0, 0   # sum = 0
+	addi x11, x0, 0   # i = 0
+	addi x13, x0, 20  # x13 = 20
+Loop:
+    bge x11, x13, Done
+	lw x12, 0(x9)     # x12 = A[i]
+	add x10, x10, x12 # sum += A[i]
+	addi x9, x9, 4    # x9 = &A[i++]
+	addi x11, x11, 1  # i++
+	j Loop
+Done:
+	\end{minted}
+\end{multicols}

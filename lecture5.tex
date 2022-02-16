@@ -1,9 +1,89 @@
-\chapter{Floating Point (Feb 2, 2022)}
+
+\chapter{Floating Point}
 
 \section{IEEE-754 Floating Point Standard}
-rounding - half way in binary: 1000...
+So far we can represent \(2^N\) integers, but what about very small and very large numbers? The goal of establishing a floating point standard is to keep \emph{high precision} and keep a decimal encoding that is compatible with two's complement.
 
-scientific notation for binary numbers
+\subsection{Floating Point Components (32 Bits)}
+\begin{itemize}
+    \item Sign (1 bit): 0 means positive, 1 means negative
+    \item Exponent (8 bits): Biased notation $\implies$ smallest number is written as all zeros
+    \item Significand/Mantissa (23 bits): In normalized form, the implicit 1 on the left of the binary point is not stored
+\end{itemize}
 
-Load \emph{from} memory to register
-Store \emph{to} memory from register
+\subsection{Floating Point Conversion}
+\begin{description}
+    \item[Normalized Floats:] \(\text{Value} = (-1)^{\textit{Sign}} * 2^{\textit{Exponent + Bias}} * 1.\textit{Significand}_2\)
+    \item[Denormalized Floats:] \(\text{Value} = (-1)^{\textit{Sign}} * 2^{\textit{Exponent + Bias + 1}} * 0.\textit{Significand}_2\)
+\end{description}
+
+\subsection{Range of Floating Point Values}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ \textbf{Exponent} & \textbf{Significand} & \textbf{Meaning} \\ 
+ \hline
+ 0 & 0 & \text{Zero} \\
+ 0 & \text{Nonzero} & \text{Denorm} \\
+ 1-254 & \text{Anything} & \text{Normal} \\
+ 255 & 0 & \text{Infinity} \\
+ 255 & \text{Nonzero} & \text{NaN} \\
+ \hline
+\end{tabular}
+
+\begin{itemize}
+    \item Positive range: \([2^{-126}, (2 - 2^{-23}) \times 2^{127}\)
+    \item Negative range: \([-(2 - 2^{-23}) \times 2^{127}, -2^{-126}]\)
+    \item Overflow: Magnitude of value is too \emph{large} to represent.
+    \item Underflow: Magnitude of value is too \emph{small} to represent.
+\end{itemize}
+
+\begin{description}
+    \item[Smallest positive value (denorm):] exponent = 0; significand = all 1s
+    
+    \((-1)^0 \times 0.0000....0001 \times 2^{0 - 127 + 1} = 2^{-23} \times 2^{-126}\)
+    
+    \item[Smallest positive norm value:] exponent = 1; significand = last bit 1
+    
+    \((-1)^0 \times 1.0000....0000 \times 2^{1-127} = 2^{-126}\) 
+    
+    \item[Largest positive value (normal):] exponent = 254 (all 1s); significand = all 1s
+    
+    \((-1)^0 \times 1.1111...1111 \times 2^{254 - 127} = (1 + (2^{-1} + 2^{-2} + ... + 2^{-23}) \times 2^{127}) = (1 + (1 - 2^{-23}) \times 2^{127})\)
+    
+    \item[Largest positive denorm value:] exp = 0; significand = all 1s
+    
+    \((-1)^0 \times 0.1111...1111 \times 2^{0 - 127 + 1} = (1 - 2^{-23}) \times 2^{-126}\)
+\end{description}
+
+\section{Floating Point Step Size}
+Let $x$ be the biased exponent and $y$ be the significand. 
+\begin{itemize}
+    \item Current number = \((1+y) \times 2^{x - 127}\)
+    \item Next number = \((1+y + 2^{-23}) \times 2^{x - 127}\)
+    \item Step size = next\_num - curr\_num = \(2^{x-150}\)
+\end{itemize}
+
+Notice there are all \(2^{23} ~ 8 \text{ million}\) possible bit patterns with \emph{equal} spacing between neighboring powers of 2. The step increases by a factor of 2 for every time the exponent increases by 1.
+
+\begin{description}
+    \item[Denorm Step Size:] Equivalent for all denorm values since they all have the same exponent.
+    \begin{itemize}
+        \item Current number = \(y \times 2^{-126}\)
+        \item Next number = \((y + 2^{-23}) \times 2^{-126}\)
+        \item Step size = \(2^{-149}\)
+    \end{itemize}
+\end{description}
+
+\section{Floating Point Caveats}
+\begin{description}
+    \item[Non-associative:] FP \emph{approximates} the real result.
+    \begin{itemize}
+        \item e.g. \(x = -1.5 \times 10^{38}\), \(y = 1.5 \times 10^{38}\), \(z = 1.0\)
+        \item \(x + (y + z) = -1.5 \times 10^{38} + (1.5 \times 10^{38} + 1.0) = -1.5 \times 10^{38} + 1.5 \times 10^{38} = 0.0\)
+        \item \((x + y) + z = (-1.5 \times 10^{38} + 1.5 \times 10^{38}) + 1.0 = 0.0 + 1.0 = 1.0\)
+    \end{itemize}
+    
+    \item[Precision vs. Accuracy:] \emph{Precision} is the count of bits used to represent a value; \emph{accuracy} is the different between the actual value and its computer representation.
+    
+    \item[Rounding:] May occur during calculation and conversion/casting.
+\end{description}
