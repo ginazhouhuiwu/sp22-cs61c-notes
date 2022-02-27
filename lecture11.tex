@@ -1,0 +1,73 @@
+\chapter{Functional Units, FSMs}
+
+\section{State}
+State elements are used to
+\begin{itemize}
+    \item Store values for some indeterminate amount of time (e.g. registers, memory) 
+    \item Control the flow of information between combinational logic blocks
+\end{itemize}
+
+\section{Register}
+A register is a state element consisting of 32 flip-flips (stores 32 bits).
+
+\subsection{D Flip-Flop}
+The output flips and flops between 0 and 1. D is "data", Q is "output".
+
+\subsection{Timing of Flip-Flop}
+\begin{description}
+    \item[Edge-Triggered D Flip-Flop:] The information storage from D to Q can be \emph{rising edge triggered} or \emph{falling edge triggered}.
+    
+    \item[CLK:]  Steady square wave that synchronizes everything (i.e. heartbeat of the system).
+    
+    \item[Clk-to-q Delay:] Time it takes for input to propagate to output after clock trigger $implies$ delay between the triggering edge and output change.
+    
+    \item[Setup Time:] Time (negative) \underline{before} the triggering edge when input must be stable.
+    
+    \item[Hold Time:] Time \underline{after} the triggering edge when input must be stable.
+\end{description}
+
+\section{Clock Signals}
+Clock cycle time must be small enough that inputs to registers don't change within the hold time and large enough to account for clk-to-q times, setup times, and combinational logic delays. When we \emph{overclock} a system, the period shrinks and instability may occur between setup and hold time.
+
+\begin{description}
+    \item[Maximum allowable hold time] = clk-to-q delay (starting reg) + shortest CL delay
+    
+    Intuition: The ending register can hold (remain stable) until the earliest possible time its input might change.
+    
+    \item[Minimum clock cycle time] = clk-to-q (starting reg) + longest CL delay + setup time (ending reg)
+    
+    Intuition: Everything between 2 registers must be finished within clock period, thus the bottleneck is the longest path between them.
+\end{description}
+
+
+\section{Combinational Logic}
+\begin{itemize}
+    \item CL circuits map the present state (PS) input to the next state (NS) output and are the hardware for FSMs.
+\end{itemize}
+
+\subsection{Boolean Algebra}
+\begin{description}
+    \item[DeMorgan's Law:] $\overline{x \cdot y} = \overline{x} + \overline{y}$; \quad $\overline{x + y} = \overline{x} \cdot \overline{y}$
+    \begin{itemize}
+        \item Intuition: The overline on LHS distributes over all 3 components (inverts x, y, and the logical operator).
+    \end{itemize}
+    
+    \item[Idempotent Law:] $x \cdot x = x$; \quad $x + x = x$
+    
+    \item[Uniting Theorem:] $xy + x = x$; \quad $(x+y)x = x$
+\end{description}
+
+\subsection{Canonical Form}
+\begin{enumerate}
+    \item Find all rows in truth table where the output is 1.
+    \item Write sum-of-products (ORs of ANDs) with output 1.
+    \item Simplify using boolean algebra.
+\end{enumerate}
+
+\section{Combinational Logic Blocks}
+
+\subsection{Data Multiplexor}
+How do we build a 1-bit-wide mux?
+\begin{itemize}
+    \item $c = \overline{s}a + sb$
+\end{itemize}

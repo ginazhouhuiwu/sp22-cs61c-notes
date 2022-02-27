@@ -117,22 +117,16 @@ RISC-V supports 16-bit compressed instructions by scaling the branch offset by 2
 \end{itemize}
 
 \medskip
-\begin{table}
-\scalebox{0.8}{
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|}
     \hline
-    \texttt{imm[12]} (1) &
-    \texttt{imm[10:5]} (6) &
+    \texttt{imm[12|10:5]} (1|6) &
     \texttt{rs2} (5) &
     \texttt{rs1} (5) &
     \texttt{funct3} (3) &
-    \texttt{imm[4:1]} (4) &
-    \texttt{imm[11]} (1) &
+    \texttt{imm[4:1|11]} (4|1) &
     \texttt{opcode} (7) \\
     \hline
 \end{tabular}
-}
-\end{table}
 \begin{itemize}
     \item \texttt{opcode} = 1100011
     \item \texttt{imm[12:1]}: represents values \([-4096, 4096]\) in 2-byte increments
@@ -151,12 +145,9 @@ RISC-V supports 16-bit compressed instructions by scaling the branch offset by 2
 Purpose: jumps.
 
 \medskip
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|}
     \hline
-    \texttt{imm[20]} (1) &
-    \texttt{imm[10:1]} (10) &
-    \texttt{imm[11]} (1) &
-    \texttt{imm[19:12]} (8) &
+    \texttt{imm[20|10:1|11|19:12]} (1|10|1|8) &
     \texttt{rd} (5) &
     \texttt{opcode} (7) \\
     \hline
@@ -164,6 +155,7 @@ Purpose: jumps.
 \begin{itemize}
     \item \texttt{opcode} = 1101111
     \item \texttt{imm[20:1]}: can jump by \(\pm 2^{20}\) bytes or \(\pm 2^{18}\) 32-bit instructions
+    \item Lowest bit of offset is always 0.
     \item JAL saves PC + 4 in register \texttt{rd}.
 \end{itemize}
 
@@ -202,3 +194,10 @@ Purpose: upper immediates.
     \item To create any 32-bit value, \texttt{lui} loads the upper 20 bits of the destination then \texttt{addi} sets the lower 12 bits.
     \item \texttt{auipc} adds a 20-bit int to PC.
 \end{itemize}
+
+\medskip
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{figures/riscv-instructs}
+  \caption{RISC-V instruction formats.}
+\end{figure}

@@ -7,6 +7,7 @@ We can either \emph{interpret} a high-level language when efficiency is not crit
 \end{itemize}
 
 \section{Compiler}
+Compiler converts a high-level language file into an assembly language file.
 \begin{itemize}
     \item Input: High-level language code (\texttt{foo.c})
     \item Output: Assembly language code (\texttt{foo.s})
@@ -21,6 +22,7 @@ We can either \emph{interpret} a high-level language when efficiency is not crit
 \end{description}
 
 \section{Assembler}
+Assembler removes pseudo-instructions, converts what it can to machine language, resolves relative addressing, and creates a checklist for the linker (relocation table).
 \begin{itemize}
     \item Input: Assembly language code (\texttt{foo.s})
     \item Output: Object code (\texttt{foo.o})
@@ -61,6 +63,7 @@ Simple cases such as arithmetic have all the information stored within 32-bit in
 \end{description}
 
 \section{Linker}
+Linker combines several \texttt{.o} files and resolves absolute addresses.
 \begin{itemize}
     \item Input: Object code files with information tables (\texttt{foo.o})
     \item Output: Executable code with text and data (\texttt{a.out})
@@ -84,6 +87,7 @@ Simple cases such as arithmetic have all the information stored within 32-bit in
 \end{enumerate}
 
 \section{Loader}
+Loader loads executable into memory and runs program.
 \begin{itemize}
     \item Input: Executable code with text and data (\texttt{a.out})
     \item Output: Program is run

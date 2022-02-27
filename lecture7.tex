@@ -12,27 +12,41 @@ What if we want PC to execute a function at a different location? Jump instructi
 \begin{description}
     \item[JAL:] \texttt{jal rd, label}
     
-    "Link" means forming an \emph{address} or \emph{link} that points to the calling site to allow function to return to proper address. "Jump" simultaneously goes to the desired function and saves the address of the following instruction in \texttt{ra}. The label that we want to jump to gets translated by the assembler to a \emph{20-bit offset}.
+    "Link" means forming an \emph{address} or \emph{link} that points to the calling site to allow function to return to proper address. "Jump" simultaneously goes to the desired function and saves the address of the following instruction in \texttt{rd}.
+    
+    JAL is used to \underline{jump to functions} by jumping to a location based on offset from current PC.
     \begin{itemize}
-        \item rd = return address
+        \item rd = PC + 4
         \item PC = PC + offset
     \end{itemize}
     
-    \item[Jump Pseudo Instruction:] \texttt{jal x0, label} $\rightarrow$ \texttt{j label}
+    \item[J:] \texttt{jal x0, label} $\rightarrow$ \texttt{j label}
     
     Return address not saved.
+    \begin{itemize}
+        \item PC = PC + offset
+    \end{itemize}
     
     \item[JALR:] \texttt{jalr rd, rs, imm}
     
     When returning from a function, the return address will be stored in a register.
+    
+    JALR is used to \underline{return from function calls} by jumping to a location based on offset from source register. 
     \begin{itemize}
-        \item PC = [rs] + imm
+        \item rd = PC + 4
+        \item PC = rs + imm
     \end{itemize}
     
-    \item[Jump Register Pseudo Instruction:] \texttt{jalr x0, ra, 0} $\rightarrow$ \texttt{jr ra} $\rightarrow$ \texttt{ret}
+    \item[JR:] \texttt{jalr x0, rd, 0} $\rightarrow$ \texttt{jr rd}
     
     \begin{itemize}
-        \item PC = [ra]
+        \item PC = rd
+    \end{itemize}
+    
+    \item[RET:] \texttt{jalr x0, ra, 0} $\rightarrow$ \texttt{jr ra} $\rightarrow$ \texttt{ret}
+    
+    \begin{itemize}
+        \item PC = ra
     \end{itemize}
 \end{description}
 
@@ -69,6 +83,9 @@ What if we want PC to execute a function at a different location? Jump instructi
 \end{enumerate}
 
 \section{Function Call Conventions}
+(\emph{More on \href{https://inst.eecs.berkeley.edu/~cs61c/resources/RISCV_Calling_Convention.pdf}{RISC-V calling conventions}}.)
+
+\medskip
 RISC-V divides registers into two categories:
 \begin{enumerate}
 	\item Preserved across function call (\emph{callee} must restore before returning):
