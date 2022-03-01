@@ -4,28 +4,32 @@
 We can either \emph{interpret} a high-level language when efficiency is not critical or \emph{translate} to a lower-level language to increase performance.
 \begin{itemize}
     \item Translated/compiled code is more efficient and helps hide the program source from users.
+    \item Interpreters have instruction set independence.
 \end{itemize}
 
 \section{Compiler}
-Compiler converts a high-level language file into an assembly language file.
+Compiler converts a high-level language file into an optimized assembly language file. 
+
+\emph{Note:} Compilers rely on the architecture of the machine.
 \begin{itemize}
     \item Input: High-level language code (\texttt{foo.c})
     \item Output: Assembly language code (\texttt{foo.s})
 \end{itemize}
 
 \subsection{Compiler Steps}
-\begin{description}
-    \item[Lexer:] Tokenizes inputs
-    \item[Parser:] Turns tokens into an abstract syntax tree
-    \item[Semantic Analysis and Optimization:] Checks for semantic errors
-    \item[Code Generation:] Outputs assembly code
-\end{description}
+Compilers use FSMs to keep track of the program's logical states and renders the code into an optimized assembly output.
+\begin{enumerate}
+    \item Lexer: Tokenizes inputs
+    \item Parser: Turns tokens into an abstract syntax tree
+    \item Semantic Analysis and Optimization: Checks for semantic errors
+    \item Code Generation: Outputs assembly code
+\end{enumerate}
 
 \section{Assembler}
-Assembler removes pseudo-instructions, converts what it can to machine language, resolves relative addressing, and creates a checklist for the linker (relocation table).
+Assembler removes pseudo-instructions, converts what it can to machine language, resolves relative addressing, and creates a checklist for the linker (symbol and relocation tables) to help resolve references later on.
 \begin{itemize}
     \item Input: Assembly language code (\texttt{foo.s})
-    \item Output: Object code (\texttt{foo.o})
+    \item Output: Object code, i.e. true assembly (\texttt{foo.o})
 \end{itemize}
 
 \subsection{Assembler Directives}
@@ -38,6 +42,17 @@ Gives directions to assembler but do not produce machine instructions.
     \item[\texttt{.word w1...wn}:] Store the $n$ 32-bit quantities in successive memory words
 \end{description}
 
+\subsection{Object Files}
+From top to bottom of the object file, the components are:
+\begin{enumerate}
+    \item \textbf{Object File Header:} Holds the size and position of other components in the object file; table of contents.
+    \item \textbf{Text Segment:} Holds only the machine code.
+    \item \textbf{Data Segment:} Holds the static information in the original code.
+    \item \textbf{Relocation Information:} Unresolved references to external libraries or other assembly files.
+    \item \textbf{Symbol Table:} Keeps a record of all labels defined and used within the \emph{local} assembled file.
+    \item \textbf{Debugging Information} 
+\end{enumerate}
+
 \subsection{Producing Machine Language}
 Simple cases such as arithmetic have all the information stored within 32-bit instructions. But how are PC-relative branches and jumps handled?
 \begin{description}
@@ -46,7 +61,7 @@ Simple cases such as arithmetic have all the information stored within 32-bit in
         \item First pass: remembers positions of labels
         \item Second pass: uses label positions to generate code
     \end{itemize}
-    \item[Jumps:] Count number of instructions between target and jump to determine offset (\emph{position-independent code}).
+    \item[Jumps:] Count number of instructions between target and jump to determine offset (turn PC-relative jumps in the code code into \emph{position-independent code}).
     \item[References to Static Data:] Cannot be determined yet, so we create 2 tables:
     \begin{enumerate}
         \item Symbol Table: items that may be used by other files (exportable)

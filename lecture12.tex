@@ -1,1 +1,94 @@
 \chapter{RISC-V Datapath}
+
+\section{State Required by RISC-V}
+\begin{description}
+	\item[Registers:] \texttt{Reg} holds 32 32-bit registers.
+	
+	\begin{itemize}
+	    \item \texttt{rs1} field is always the first register
+	    \item \texttt{rs2} field is always the second register
+	    \item \texttt{rd} field stores the destination
+	    \item \texttt{Reg[0]} is always 0 (writes are ignored)
+	\end{itemize}
+
+	\item[Program Counter:] \texttt{PC} holds address of current instruction.
+	
+	\item[Memory:] \texttt{MEM} holds both instructions and data in a 32-bit byte-addressed memory space
+    
+    \begin{itemize}
+        \item \texttt{IMEM} holds instructions and is \emph{read-only}
+        \item \texttt{DMEM} holds data and is accessed by load/store
+    \end{itemize}
+\end{description}
+
+\section{One-Instruction-Per-Cycle RISC-V Machine}
+\begin{align*}
+\begin{pmatrix}
+\texttt{PC} \\
+\texttt{IMEM} \\
+\texttt{Reg[]}\\ 
+\texttt{DMEM}\\
+\end{pmatrix}
+\xrightarrow{\text{clock rises}}{}
+\left(\texttt{next state}\right)
+\end{align*}
+
+On every tick of the clock, the processor executes one instruction.
+
+\begin{enumerate}
+    \item Current state outputs drive the inputs to the combinational logic, whose outputs settles at the values of the state before the next clock edge.
+    \item At the rising clock edge, all the state elements are updated with the CL outputs and execution moves to next the clock cycle.
+    \item Separate instruction/data memory. Memory is asynchronous (unclocked) read but synchronous (clocked) write.
+\end{enumerate}
+
+\subsection{Phases of Instruction Execution}
+\begin{enumerate}
+	\item IF: Instruction fetch (\texttt{DMEM})
+	\item ID: Decode/register read (\texttt{IMEM})
+	\item EX: Execute (ALU)
+	\item MEM: Store memory (\texttt{DMEM})
+	\item WB: Register write (\texttt{REG[]})
+\end{enumerate}
+
+\section{Instruction Datapaths}
+\subsection{\texttt{add} instruction}
+We need
+\begin{align}
+\texttt{Reg}\left[\texttt{rd}\right] &= \texttt{Reg}\left[\texttt{rs1}\right] + \texttt{Reg}\left[\texttt{rs2}\right] \\
+\texttt{PC} &= \texttt{PC} + 4
+\end{align}
+
+\begin{enumerate}
+	\item \texttt{PC} read and incremented.
+	\item \texttt{IMEM} dereferenced by \texttt{PC}.
+	\item Instruction passed to destination and source registers, and control logic for deciding instruction (signal to \texttt{Reg[]}).
+	\item \texttt{rs1}, \texttt{rs2}, \texttt{rd} dereferenced in \texttt{Reg[]}.
+	\item ALU performs add logic.
+	\item Control logic writes (\texttt{RedWriteEnable}) the result and \texttt{Reg[]} mutates.
+\end{enumerate}
+The control line that decodes the instructions signals RW-enable in the register and signals the ALU to do the right operation. Most R-format instructions can be implemented this way, depending on what the ALU hears from the control line.
+
+\subsection{More Instructions}
+\begin{description}
+\item [\texttt{addi}]
+From the \texttt{add} datapath, add an \emph{immediate generator} that sign extends the 12-bit immediate. Add a \texttt{mux} at ALU input to select from \texttt{rs2} or \texttt{Imm Gen}.
+\begin{itemize}
+    \item This modified datapath design works for all I-format instructions.
+\end{itemize}
+
+\item[\texttt{lw}]
+From the \texttt{addi} datapath, add a path through \texttt{DMEM} before the last step (signaled read-enable by control line) and mux the path by a control line switch.
+
+\item[\texttt{sw}]
+Add a path from \texttt{rs2} to \texttt{DMEM}, which is now getting signaled for \emph{write}. Control line signals 0 to register write.
+\end{description}
+
+\subsection{Implementing Branches}
+B-format is mostly the same as S-format, but we need to add the ability to compare.
+\begin{enumerate}
+	\item Register comparator mux to control line.
+	\item PC mux to ALU.
+	\item ALU output mux to PC, signaled by control line.
+\end{enumerate}
+
+\subsection{\texttt{jal} instruction}

@@ -8,6 +8,9 @@ So far we can represent \(2^N\) integers, but what about very small and very lar
 \begin{itemize}
     \item Sign (1 bit): 0 means positive, 1 means negative
     \item Exponent (8 bits): Biased notation $\implies$ smallest number is written as all zeros
+    \begin{itemize}
+        \item Bias = $-(2^{N-1}-1)$
+    \end{itemize}
     \item Significand/Mantissa (23 bits): In normalized form, the implicit 1 on the left of the binary point is not stored
 \end{itemize}
 
