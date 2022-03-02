@@ -51,7 +51,7 @@ On every tick of the clock, the processor executes one instruction.
 \end{enumerate}
 
 \section{Instruction Datapaths}
-\subsection{\texttt{add} instruction}
+\subsection{\texttt{add} Instruction}
 We need
 \begin{align}
 \texttt{Reg}\left[\texttt{rd}\right] &= \texttt{Reg}\left[\texttt{rs1}\right] + \texttt{Reg}\left[\texttt{rs2}\right] \\
@@ -90,5 +90,3 @@ B-format is mostly the same as S-format, but we need to add the ability to compa
 	\item PC mux to ALU.
 	\item ALU output mux to PC, signaled by control line.
 \end{enumerate}
-
-\subsection{\texttt{jal} instruction}

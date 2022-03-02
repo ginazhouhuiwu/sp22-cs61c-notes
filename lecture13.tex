@@ -1,1 +1,68 @@
 \chapter{RISC-V Single-Cycle Control}
+
+\section{Controller}
+Control is the hardware that tells the datapath what to do.
+
+\subsection{Controller Relization Options}
+\begin{description}
+    \item[Read-Only Memory (ROM):] Manually programmed to implement the truth table in the control block; cannot be electronically modified.
+    \item[Combinatorial Logic:] Uses logic synthesis to convert truth tables to networks of gates.
+\end{description}
+
+\section{Instruction Timing}
+Approximate worst case instruction timing:
+\begin{enumerate}
+	\item PC updates
+	\item Instruction fetch
+	\item Instruction decode
+	\item Execute ALU
+	\item Read memory
+\end{enumerate}
+
+\section{Performance}
+\subsection{Performance Measures}
+Our RISC-V executes instructions at 1.25 GHz (1 instruction every 800 ps); how can we improve its performance? Less time for each instruction? More instructions per unit time?
+
+\medskip
+We take the following into account:
+\begin{itemize}
+    \item \emph{Latency:} Instruction execution time; fundamental and cannot be changed
+    \item \emph{Throughput:} Total number of instructions executed per unit time; can be improved by performing tasks in parallel
+    \item \emph{Energy Efficiency:} Energy per instruction
+\end{itemize}
+
+
+\subsection{Iron Law}
+\begin{align}
+	\frac{\text{time}}{\text{program}} &= 
+	\left(\frac{\text{instructions}}{\text{program}}\right)
+	\left(\frac{\text{cycles}}{\text{instruction}}\right)
+	\left(\frac{\text{time}}{\text{cycle}}\right)
+\end{align}
+
+\begin{itemize}
+    \item Instructions per program depends on task, algorithm, programming language, compiler, ISA.
+    \item Average clock cycles per instruction is 1 on our single-cycle datapath, but can vary depending on ISA, processor implementation (microarchitecture).
+    \item Time per cycle (clock frequency) is determined by architecture (e.g.~length of critical path), technology (transistor size), supply voltage.
+\end{itemize}
+ 
+\subsection{Energy per Task}
+\begin{align}
+\frac{\text{energy}}{\text{program}}
+&= \left(\frac{\text{instructions}}{\text{program}}\right)
+\left(\frac{\text{energy}}{\text{isntructions}}\right)\\
+& \propto \frac{\text{instructions}}{\text{program}}
+\left(CV_{dd}^2\right)
+\end{align}
+
+Capacitance depends on the physical complexity of the processor. We want to reduce capacitance and supply voltage to reduce energy per task.
+
+\subsection{Energy Iron Law}
+\begin{align}
+    \text{performance} = \text{power} \cdot \text{energy efficiency}
+\end{align}
+
+Energy efficiency is the key metric in all computing devices/power-constrained systems.
+
+\subsection{End of scaling}
+At low voltage, the \emph{leakage power} where transistor switches don't fully turn off is icnreased.
