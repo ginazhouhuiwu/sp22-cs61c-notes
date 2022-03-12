@@ -13,7 +13,7 @@ Compiler converts a high-level language file into an optimized assembly language
 \emph{Note:} Compilers rely on the architecture of the machine.
 \begin{itemize}
     \item Input: High-level language code (\texttt{foo.c})
-    \item Output: Assembly language code (\texttt{foo.s})
+    \item Output: Assembly language code (\texttt{foo.a})
 \end{itemize}
 
 \subsection{Compiler Steps}
@@ -28,7 +28,7 @@ Compilers use FSMs to keep track of the program's logical states and renders the
 \section{Assembler}
 Assembler removes pseudo-instructions, converts what it can to machine language, resolves relative addressing, and creates a checklist for the linker (symbol and relocation tables) to help resolve references later on.
 \begin{itemize}
-    \item Input: Assembly language code (\texttt{foo.s})
+    \item Input: Assembly language code (\texttt{foo.a})
     \item Output: Object code, i.e. true assembly (\texttt{foo.o})
 \end{itemize}
 
