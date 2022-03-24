@@ -1,0 +1,95 @@
+\chapter{Caches II}
+
+\section{Cache Terminology}
+\subsection{Basics}
+\begin{itemize}
+    \item Cache line/block: single entry in cache
+    \item Line/block size: number of bytes in each cache line
+    \item Tag: identifies the data stored at a given cache line
+    \item Valid bit: indicator for whether data stored at a given cache line is valid
+    \item Capacity: total number of data bytes that can be stored in a cache
+\end{itemize}
+
+\subsection{Temperature}
+\begin{itemize}
+    \item Cold: cache empty
+    \item Warming: cache filling with values
+    \item Warm: cache has a fair percentage of hits
+    \item Hot: cache is doing very well with high percentage of hits
+\end{itemize}
+
+\section{Cache Misses}
+\begin{itemize}
+    \item Compulsory Miss: Caused by the first access to a block that has never been in the cache.
+     \begin{itemize}
+        \item Valid bit is 0.
+    \end{itemize}
+    \item Capacity Miss: Caused when the cache cannot contain all the blocks needed during the execution of a program.
+    \begin{itemize}
+        \item Would not occur if we increase the size of the cache.
+    \end{itemize}
+    \item Conflict Miss: Occurs in set-associative or direct mapped caches when multiple blocks compete for the same set.
+    \begin{itemize}
+        \item Tag is mismatched.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Categorizing Misses}
+Run an address trace against a set of caches:
+\begin{enumerate}
+    \item Consider an infinite-size, fully-associative cache $\implies$ every miss is \emph{compulsory}
+    \item Consider a finite-sized, fully-associative cache $\implies$ every miss that is not compulsory is \emph{capacity}
+    \item Consider a finite-sized, finite-associative cache $\implies$ remaining misses are \emph{conflict}
+\end{enumerate}
+
+\section{Direct Mapped Caches}
+Each memory address is associated with exactly one \emph{block} within the cache. We only need to look at a single location to determine whether the data exist within the cache.
+
+\subsection{TIO}
+Memory address is divided into three fields (unsigned integers):
+\begin{itemize}
+    \item Order for checking: Index $\rightarrow$ Valid bit $\rightarrow$ Tag $\rightarrow$ Offset
+\end{itemize}
+\begin{enumerate}
+    \item Tag: remaining bits after offset and index are determined; distinguishes between all of the memory addresses that map to the same location
+    \item Index: cache index, i.e. specifies row/block of the cache
+    \item Offset: location of the byte in the block
+\end{enumerate}
+
+Area (cache size) = Height (Index, i.e. number of blocks) * Width (Offset, i.e. size of one block)
+
+\section{Write Policies}
+\begin{description}
+	\item[Write-through] Write to the cache and memory at the same time.
+		\begin{itemize}
+			\item Simple to implement
+			\item Redundancy
+		\end{itemize}
+	\item[Write-back] Write data only to cache and set the dirty bit to 1. When this line gets evicted from the cache, write to memory.
+		\begin{itemize}
+			\item More complex control logic
+			\item Lowers traffic because you might write to something multiple times before eviction from cache.
+			\item Less reliable, more possibility for inconsistent state
+		\end{itemize}
+\end{description}
+
+\section{Fully Associative Caches}
+Data can be stored anywhere in the cache, so there are no indices (rows) or conflict misses. However, it is infeasible as we need one comparator for every entry.
+
+\section{Set Associative Caches}
+An N-way set associative cache contains N blocks per set/row.
+
+For a cache with M blocks, it is:
+\begin{itemize}
+    \item Direct mapped if 1-way set associative
+    \item Fully associative if M-way set associative
+\end{itemize}
+
+\section{Approximate LRU (Clock Algorithm)}
+Least-Recently Used eviction policy replaces the entry that has not been used for the longest time.
+\begin{itemize}
+    \item Each cache line has a \emph{reference bit} set to 1 each time the line is accessed
+    \item When a line needs to be evicted, we start at the first entry of the cache and check its reference bit; we choose the line if bit is 0
+    \item Search from where we left off the next time we need to evict a line from cache
+    \item Note: We do not start evicting lines until all entries in the cache are valid
+\end{itemize}

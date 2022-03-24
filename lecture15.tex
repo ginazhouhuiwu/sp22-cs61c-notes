@@ -1,0 +1,81 @@
+\chapter{Caches I}
+
+\section{Binary Prefix}
+Kid meets giant Texas people exercising zen-like yoga.
+\medskip
+\newline
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ \textbf{Name} & \textbf{Abbr} & \textbf{Factor} \\ 
+ \hline
+ kibi & Ki & $2^{10}$ \\
+ mebi & Mi & $2^{20}$ \\
+ gibi & Gi & $2^{30}$ \\
+ tebi & Ti & $2^{40}$ \\
+ pebi & Pi & $2^{50}$ \\
+ exbi & Ei & $2^{60}$ \\
+ zebi & Zi & $2^{70}$ \\
+ yobi & Yi & $2^{80}$ \\
+ \hline
+\end{tabular} 
+
+\subsection{What is $2^{XY}$?}
+\medskip
+\begin{tabular}{ |l|l| } 
+ \hline
+ \textbf{X} & \textbf{Y} \\ 
+ \hline
+ X = 0 $\implies$ -- & Y = 0 $\implies$ 1 \\
+ X = 1 $\implies$ $10^3$ (kibi) & Y = 1 $\implies$ 2 \\
+ X = 2 $\implies$ $10^6$ (mebi) & Y = 2 $\implies$ 3 \\
+ X = 3 $\implies$ $10^9$ (gibi) & Y = 3 $\implies$ 8 \\
+ X = 4 $\implies$ $10^{12}$ (tebi) & Y = 4 $\implies$ 16 \\
+ X = 5 $\implies$ $10^{15}$ (pebi) & Y = 5 $\implies$ 32 \\
+ X = 6 $\implies$ $10^{18}$ (exbi) & Y = 6 $\implies$ 64 \\
+ X = 7 $\implies$ $10^{21}$ (zebi) & Y = 7 $\implies$ 128 \\
+ X = 8 $\implies$ $10^{24}$ (yobi) & Y = 8 $\implies$ 256 \\
+ \hline
+\end{tabular} 
+
+\section{Memory Caching}
+\subsection{Library Analogy}
+The time it takes to find a book in a large library includes:
+\begin{enumerate}
+	\item Searching a catalogue to find the address.
+	\item Making a round trip to the physical location.
+\end{enumerate}
+
+We fetch the books needed and place them on a checkout desk. Hopefully, this subset of books is enough for writing a report despite it being a small percentage of total books in the library.
+
+\subsection{Cache}
+Idea: Mismatch between processor and memory speeds leads us to add a new level called \emph{memory cache}, a \underline{copy} of a subset of main memory (lower levels).
+
+\subsection{Memory Hierarchy}
+\begin{itemize}
+    \item (High to low): Registers $\rightarrow$ Cache $\rightarrow$ Main memory $\rightarrow$ Disk
+    \item Locality: Levels closer to processor are smaller, faster, and more expensive.
+    \item Lowest level (usually disk = HSS/SSD) contains all available data
+\end{itemize}
+
+This hardware mechanism presents the processor with the illusion of having the fastest memory (higher levels) with the size of the largest memory (lower levels).
+
+\section{Locality}
+\begin{itemize}
+    \item \emph{Temporal Locality}: If a memory location is referenced, then it will tend to be referenced again soon. 
+    
+    $\implies$ Keeps most recently accessed data items closer to processor.
+    
+    \item \emph{Spatial Locality}: If a memory location is referenced, the locations with nearby addresses will tend to be referenced soon.
+    
+    $\implies$ Move blocks consisting of contiguous words closer to the processor.
+\end{itemize}
+
+\subsection{Cache Design}
+Cache is placed between processor and memory. If the data we are looking for is in the cache, we have a \emph{hit}. Otherwise, there is a \emph{miss}; we go to the memory to find data, place it in the cache, and bring it to the processor.
+
+How is our data stored in the cache?
+\begin{enumerate}
+    \item Direct Mapped
+    \item Fully Associative
+    \item Set Associative
+\end{enumerate}

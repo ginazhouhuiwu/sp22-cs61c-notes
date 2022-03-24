@@ -1,0 +1,38 @@
+\chapter{Caches III}
+
+\section{Cache Performance}
+\begin{itemize}
+    \item Hit rate: number of hits / total number of accesses
+    \item Miss rate: 1 - hit rate
+    \item Hit time: time to access an item on a cache hit
+    \item Miss penalty: time to access block after discovering that it is not in the cache on a cache miss
+\end{itemize}
+
+\subsection{Average Memory Access Time (AMAT)}
+Minimize: AMAT = Hit Time + Miss Rate * Miss Penalty
+
+\subsection{L2 Cache}
+Introduce another cache between memory and the processor cache to reduce L1 miss penalty. L3 may be added as an additional layer of safety net.
+
+\subsection{Performance optimization}
+Optimizing AMAT:
+\begin{enumerate}
+	\item Reduce hit time by using a smaller cache.
+	\item Reduce miss rate by using a larger cache.
+	\item Reduce the miss penalty by using multiple cache levels.
+\end{enumerate}
+
+\section{Multi-level Cache Hierarchy}
+\subsection{Miss Rate}
+\begin{description}
+	\item[Local] = \# hits at this level / \# accesses to this level
+	\item[global] = \# hits at this level / \emph{total} \# accesses
+\end{description}
+It is wise to sacrifice L1 miss rate for L1 hit time, as there is more cache (e.g.~L2) to back those up.
+
+Recurrence relation in analyzing multi-level caches:
+\begin{description}
+    \item[AMAT] = L1 hit time + L1 miss rate * L1 miss penalty
+    \item[L1 miss penalty] = L2 hit time + L2 miss rate * L2 miss penalty
+    \item[AMAT] = L1 hit time + L1 miss rate * (L2 hit time + L2 miss rate * L2 miss penalty)
+\end{description}
