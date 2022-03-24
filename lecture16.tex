@@ -26,11 +26,11 @@
     \end{itemize}
     \item Capacity Miss: Caused when the cache cannot contain all the blocks needed during the execution of a program.
     \begin{itemize}
-        \item Would not occur if we increase the size of the cache.
+        \item Would not occur if we increase the size of the cache; independent of associativity.
     \end{itemize}
     \item Conflict Miss: Occurs in set-associative or direct mapped caches when multiple blocks compete for the same set.
     \begin{itemize}
-        \item Tag is mismatched.
+        \item Tag is mismatched; would not occur in a fully associative cache with LRU replacement.
     \end{itemize}
 \end{itemize}
 
@@ -58,6 +58,18 @@ Memory address is divided into three fields (unsigned integers):
 
 Area (cache size) = Height (Index, i.e. number of blocks) * Width (Offset, i.e. size of one block)
 
+\section{Fully Associative Caches}
+Data can be stored anywhere in the cache, so there are no indices (rows) or conflict misses. However, it is infeasible as we need one comparator for every entry.
+
+\section{Set Associative Caches}
+An N-way set associative cache contains N blocks per set/row.
+
+For a cache with M blocks, it is:
+\begin{itemize}
+    \item Direct mapped if 1-way set associative
+    \item Fully associative if M-way set associative
+\end{itemize}
+
 \section{Write Policies}
 \begin{description}
 	\item[Write-through] Write to the cache and memory at the same time.
@@ -73,19 +85,24 @@ Area (cache size) = Height (Index, i.e. number of blocks) * Width (Offset, i.e. 
 		\end{itemize}
 \end{description}
 
-\section{Fully Associative Caches}
-Data can be stored anywhere in the cache, so there are no indices (rows) or conflict misses. However, it is infeasible as we need one comparator for every entry.
+\section{Allocation Policies}
+\begin{description}
+    \item[Write-allocate] On a write miss, you pull the block you missed on into the cache.
+    \item[No write-allocate] On a write miss, you do not pull the block you missed on into the cache. Only memory is updated.
+    \begin{itemize}
+        \item On a read miss, the data is still loaded into the cache.
+    \end{itemize}
+\end{description}
 
-\section{Set Associative Caches}
-An N-way set associative cache contains N blocks per set/row.
+\section{Replacement Policies}
+When deciding to evict a cache block to make space:
+\begin{description}
+    \item[LRU (Least Recently Used)] Select the block that has been used the furthest back in time of all the blocks.
+    \item[Random] Randomly select one of the blocks in the cache to evict.
+    \item[MRU (Most Recently Used)] Select the block that has been used the most recently of all the blocks.
+\end{description}
 
-For a cache with M blocks, it is:
-\begin{itemize}
-    \item Direct mapped if 1-way set associative
-    \item Fully associative if M-way set associative
-\end{itemize}
-
-\section{Approximate LRU (Clock Algorithm)}
+\subsection{Approximate LRU (Clock Algorithm)}
 Least-Recently Used eviction policy replaces the entry that has not been used for the longest time.
 \begin{itemize}
     \item Each cache line has a \emph{reference bit} set to 1 each time the line is accessed

@@ -14,11 +14,17 @@ Minimize: AMAT = Hit Time + Miss Rate * Miss Penalty
 \subsection{L2 Cache}
 Introduce another cache between memory and the processor cache to reduce L1 miss penalty. L3 may be added as an additional layer of safety net.
 
-\subsection{Performance optimization}
-Optimizing AMAT:
+\subsection{Performance Optimization}
+In general, any variable we can change in caches causes a tradeoff between speed and hit rate, though extreme caches suffer in both metrics. We can optimize AMAT with:
 \begin{enumerate}
-	\item Reduce hit time by using a smaller cache.
-	\item Reduce miss rate by using a larger cache.
+	\item Reduce hit time
+	\begin{itemize}
+	    \item Decrease cache size/associativity $\implies$ check fewer spots in our cache (faster hits)
+	\end{itemize}
+	\item Reduce miss rate
+	\begin{itemize}
+	    \item Increase cache size
+	\end{itemize}
 	\item Reduce the miss penalty by using multiple cache levels.
 \end{enumerate}
 
