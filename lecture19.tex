@@ -1,1 +1,108 @@
 \chapter{Amdahl's Law, Thread-Level Parallelism, OpenMP Introduction}
+
+\section{Amdahl's Law}
+The amount of possible speedup due to enhancement $E$ is determined by:
+\begin{align*}
+	\text{Speedup} &= \frac{\text{Execution Time w/o $E$}}{\text{Execution Time w/ $E$}} \\
+	&= \frac{\text{Exec Time w/ $E$} \times [(1-F) + F/S]}{\text{Exec Time w/ $E$}} \\
+	&= \frac{1}{(1-F) + \frac{F}{S}} \\
+\end{align*}
+\begin{itemize}
+    \item $F$ = fraction of the program that can be sped up
+    \item $S$ = factor of speedup
+\end{itemize}
+Even as \(S_E\to\infty\), speedup would not exceed \(\left(1 - F\right)^{-1}\) $\implies$ The amount of speedup that can be achieved through parallelism is limited by the serial portion of your program.
+
+\subsection{Scaling}
+\begin{itemize}
+    \item \emph{Strong scaling}: speedup can be achieved on a parallel processor without increasing the size of the problem
+    \item \emph{Weak scaling}: speedup can be achieved by increasing the problem size proportionally to the number of processors
+\end{itemize}
+
+
+\section{Thread-Level Parallelism}
+
+\subsection{Multicore}
+A \emph{core} is an independent processor with its own control, datapath (PC, registers, and ALU), and highest level caches (e.g. L1, L2). Multicore processor shared resources include memory (DRAM) and often L3 cache.
+
+
+\subsection{Threads}
+A \emph{thread} is a sequential flow of instructions that performs some task. A program can \emph{split/fork} itself into separate threads, which can execute simultaneously. With a single core, a single CPU can execute many threads by \emph{time sharing}.
+
+\medskip
+
+Each thread has PC, registers, and shared memory. A physical core provides \emph{hardware threads} that execute simultaneously. The OS multiplexes \emph{software threads} onto available \emph{hardware threads}.
+
+\subsection{Operating System Threads}
+Give the illusion of many active threads:
+\begin{itemize}
+    \item  Time-multiplex software threads onto hardware threads.
+    \item Remove a software thread from a hardware thread by interrupting its execution and saving its registers and PC into memory.
+    \item Make a different software thread active by loading its registers into a hardware thread’s registers and jumping to its saved PC.
+\end{itemize}
+
+\section{Hardware Multithreading}
+In one core with two threads, some datapath elements (ALU) are shared, while some state elements (PC and registers) are separate.
+
+\begin{itemize}
+	\item Logical threads: 1\% more hardware, 10\% better performance
+	\item Multicore: 50\% more hardware, 100\% better performance
+\end{itemize}
+
+\section{OpenMP}
+OpenMP is a language extension used for multithreaded, shared-memory parallelism. OpenMP threads are software threads, which are requested by the OS and multiplexed onto available hardware threads. 
+
+\subsection{\texttt{for} loops}
+\begin{itemize}
+	\item Serial:
+\begin{minted}{c}
+for (int i = 0; i < 100; i++) { /* ... */ }
+\end{minted}
+
+	\item Parallel:
+\begin{minted}{c}
+#include <omp.h>
+
+#pragma omp parallel for
+for (int i = 0; i < 100; i++) { /* ... */ }
+\end{minted}
+\end{itemize}
+
+OpenMP uses a \emph{fork-join model} (just like Java's \texttt{Stream.parallel()}).
+
+\section{Data Races and Synchronization}
+Two memory accesses form a \emph{data race} if different threads want to both use the same location and one of them is a write; the result of the program is random. We can avoid data races by synchronizing writing and reading to get deterministic behavior.
+\begin{itemize}
+    \item Solution: Computers use locks to control access to shared resources.
+\end{itemize}
+
+\subsection{Synchronization with Locks}
+\begin{minted}{c}
+// wait for lock released
+while (lock != 0);
+// lock == 0 now (unlocked)
+
+// set lock
+lock = 1;
+
+    // access shared resource; sequential execution
+    
+// release lock
+lock = 0;
+\end{minted}
+
+However, if two threads run this code and the second enters and exits the loop before the first thread has acquired the lock, both threads think they have set the lock (race condition). We need support from hardware to prevent an interlooper from changing the value.
+
+\subsection{Hardware Synchronization}
+\begin{itemize}
+    \item Hardware must provide atomic read/write that reads and writes in a single instruction.
+    \item Atomic read/write must hit shared memory.
+\end{itemize}
+
+\subsection{Atomic Memory Operations}
+Read, operate, write to register, write to memory atomically, e.g.~\texttt{amoadd.w rd,rs2,(rs1)}:
+\begin{enumerate}
+	\item \texttt{t = M[R[rs1]];}
+	\item \texttt{R[rd] = t;}
+	\item \texttt{M[R[rs1]] = t + R{rs2};}
+\end{enumerate}

@@ -1,1 +1,96 @@
 \chapter{Flynn's Taxonomy, Data-Level Parallelism}
+
+\section{Parallelism for Performance}
+Since clock rates cannot be increased, the only way to get higher speed is to use parallel processing.
+
+There are two ways to use parallelism for performance:
+\begin{enumerate}
+	\item Multiprogramming: run independent programs in parallel ("easy")
+	\item Parallel computing: run one program faster ("hard")
+\end{enumerate}
+
+
+\section{Matrix Multiplication}
+For \(C = AB\), \(C_{ij} = \sum_k A_{ik}B_{kj}\).
+
+\medskip
+\texttt{dgemm} FORTRAN routine (\emph{d}ouble precision \emph{ge}neral \emph{m}atrix \emph{m}ultiplication): 
+
+\begin{minted}{python}
+def dgemm(N, a, b, c):
+  for i in range(N):
+    for j in range(N):
+      c[i + j*N] = 0
+      for k in range(N):
+        c[i + j*N] += a[i + k*N] * b[k + j*N]
+\end{minted}
+\begin{itemize}
+	\item A square matrix of dimension \(n\times n\) is stored in a linear form in computer memory, hence the dereferencing arithmetic.
+	\item This Python code reaches about 5.4 Mflops.
+\end{itemize}
+
+C implementation:
+
+\begin{minted}{C}
+void dgemm_scalar(int N, double *a, double *b, double*c) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			double cij = 0;
+			for (int k = 0; k < N; k++) {
+			    cij += a[i + k*N] * b[k + j*N];
+			}
+			c[i + j*N] = cij;
+		}
+	}
+}
+\end{minted}
+
+\begin{itemize}
+    \item The C code reaches about 1 Gflop, which is 240x faster!
+\end{itemize}
+
+If we vectorize the inner loop:
+
+\begin{minted}{c}
+/* i, j from outer loop */
+__m256d c0 = {0,0,0,0};
+for (int k = 0; k < N; k++) {
+	c0 = __mm256_add_pd( 
+		    c0,
+            __mm256_mull_pd(
+                __mm256_load_pd(a+i+k*N),
+                __mm256_broadcast_sd(b+k+j*N)));
+}
+\end{minted}
+
+
+\section{Flynn's Taxonomy}
+Instruction and data streams can be single or multiple.
+\begin{description}
+	\item[SISD:] Sequential single stream of instructions and data, e.g. traditional computer programs, 61C until now.
+	\item[SIMD:] Computer that applies a single instruction stream to multiple data streams for operations that may be naturally parallelized, e.g. GPU, vector instructions like SSE Intrinsics.
+	\item[MIMD:] Multiple autonomous processors simultaneously executing different instructions on different data, e.g. multicore processors, multithreading, Warehouse Scale Computers.
+	\item[MISD:] Exploits multiple instruction streams against a single data stream for data operations that can be naturally paralleized, not commonly encountered.
+\end{description}
+Most CPUs these days have SIMD/MIMD. The usual parallel programming style is Single Program Multiple Data (SPMD).
+
+
+\section{SIMD Architectures}
+x86 has 256-bit registers than can be split into 128-bit words, 2 64-bit words, etc.
+
+\subsection{Data-Level Parallelism (DLP)}
+SSE instructions exhibit DLP:
+\begin{itemize}
+    \item Perform single operation on multiple data streams.
+    \item Use large registers that can hold 128, 256, 512, etc bits.
+    \item Useful for array and loop operations.
+\end{itemize}
+
+\subsection{Intrinsic}
+An intrinsic function is a function whose implementation is handled by the compiler. Most intrinsic names use the following notation convention: 
+
+\texttt{\_mm\_<intrin\_op>\_<suffix>}.
+\begin{itemize}
+    \item $\texttt{<intrin\_op>}$: Indicates the basic operation of the intrinsic (e.g. add for addition and sub for subtraction).
+    \item $\texttt{<suffix>}$: Denotes the type of data the instruction operates on. The first one or two letters of each suffix denote whether the data is packed ($\texttt{p}$), extended packed ($\texttt{ep}$), or scalar ($\texttt{s}$). The remaining letters and numbers denote the type, e.g. $\texttt{i128}$ for signed 128-bit integer.
+\end{itemize}
