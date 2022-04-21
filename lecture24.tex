@@ -1,1 +1,39 @@
 \chapter{Virtual Memory III, I/O}
+
+
+How does the processor do I/O?
+\begin{enumerate}
+	\item Special input/output instructions (e.g.~per device, tuned to hardware).
+	\item Memory-mapped I/O: I/O devices are named by memory addresses; load/store using normal instructions. There are a lot of control (key down) and data (what key?) registers.
+\end{enumerate}
+Two ways to handle I/O:
+\begin{description}
+	\item[polling] wait for device to set \texttt{ready} bit, then read/write. (\texttt{ready} could be read or write control.)
+	\item[interrupt] when I/O is ready or needs attention, control is sent to the \emph{interrupt handler}.
+\end{description}
+Traps are the software mechanism for dealing with unusual behavior.
+\begin{description}
+	\item[interrupts] are asynchronous signals (e.g.~I/O is ready) to enter the trap handler.
+	\item[exceptions] are synchronous errors (e.g.~illegal memory R/W)
+\end{description}
+How is an interrupt handled?
+\begin{enumerate}
+	\item Instruction stream is suspended.
+	\item CPU looks up the vector (function address) of interrupt handler in \emph{interrupt vector table} stored in CPU.
+	\item \textsc{jal} to the handler, save PC in \textbf{M}achine \textbf{E}xception \textbf{P}rogram \textbf{Counter}.
+	\item Handler runs, then returns:
+\begin{minted}{asm}
+handler: save registers
+         decode interrupt
+         handle interrupt
+         clear interrupt
+         restore registers
+         mret
+\end{minted}
+\end{enumerate}
+Exceptions are handled like pipeline hazards on a pipelined CPU:
+\begin{enumerate}
+	\item Complete instructions begun before exception.
+	\item Flush instructions currently in pipeline.
+	\item (optional) Store exception cause in status register.
+\end{enumerate}

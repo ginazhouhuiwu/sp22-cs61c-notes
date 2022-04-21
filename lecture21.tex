@@ -1,1 +1,65 @@
 \chapter{Operating Systems}
+
+What is an operating system?
+\begin{enumerate}
+	\item Provides \emph{interaction} with the outside world (i.e. devices like mouse, display, network); masks physical resources and limitations
+	\item Provides \emph{isolation} between running processes; manages the protection and sharing of resources.
+	\begin{enumerate}
+	    \item \emph{Context switch}: switches from executing one program to another.
+	    \item \emph{Protection}: isolates processes from each other while allowing multiple processes to run on the same processor (time-sharing).
+		\item Resources are multiplexed between applications.
+	\end{enumerate}
+\end{enumerate}
+
+\section{Dual Mode Operation}
+
+Hardware provides at least two modes: kernel (supervisor) mode and user mode. OS mostly runs in user mode, but there are few ways we switch between user and kernel mode.
+
+\subsection{System Calls}
+Syscall allows the program to request a service from the OS. Similar to function calls but is executed by the kernel.
+
+\subsection{Interrupts and Exceptions}
+\begin{description}
+    \item[Interrupts:] asynchronous signals caused by an event \emph{external} to the current running program (e.g. key press); does not need to be handled immediately
+    \item[Exceptions:] synchronous errors caused by an event \emph{during} the execution of the current running program (e.g. illegal instruction, divide by zero); must be handled immediately
+\end{description}
+
+The \emph{trap handler} services interrupts and exceptions. Prior to execution of the trap handler, all instructions before the faulting instructions must complete and all instructions after must be flushed. 
+The trap handler does the following:
+\begin{enumerate}
+    \item Save the state of current program: save all registers
+    \item Determine what caused the interrupt or exception
+    \item Selects one of two actions:
+    \begin{enumerate}
+        \item Continue execution of program (likely interrupts):
+        \begin{enumerate}
+            \item Restore state of program
+            \item Return control to program
+        \end{enumerate}
+        \item Terminate program (illegal instructions):
+        \begin{enumerate}
+            \item Terminate program
+            \item Schedule new program
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+\section{Kernel}
+Kernel is the core of the OS that manages resources including scheduling, memory, and I/O. The \emph{shell} is a program that exposes the OS's services.
+
+\section{Miscellaneous}
+
+\subsection{What happens at boot?}
+\begin{enumerate}
+	\item The BIOS (Basic Input/Output System) runs power-on-self-test (POST) and executes the bootloader.
+	\item The bootloader loads  in part of the OS.
+	\item OS initializes services, drivers, etc.
+	\item Launch a process that waits for an input in a loop.
+\end{enumerate}
+
+\subsection{How do you begin executing a program?}
+\begin{enumerate}
+    \item The loader loads program into memory
+    \item Loader sets \texttt{argc} and \texttt{argv}
+    \item OS jumps to \texttt{main} and transfers control to the process
+\end{enumerate}
