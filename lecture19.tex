@@ -106,3 +106,9 @@ Read, operate, write to register, write to memory atomically, e.g.~\texttt{amoad
 	\item \texttt{R[rd] = t;}
 	\item \texttt{M[R[rs1]] = t + R{rs2};}
 \end{enumerate}
+
+\subsection{Deadlock} 
+The deadlock problem arises when we are in a system state in which no progress is possible, e.g. there are two threads, two locks; each thread has one lock and each thread needs the other's lock.
+
+To address this, we can try to limit locks or eliminate them altogether.
+

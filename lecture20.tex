@@ -1,1 +1,53 @@
 \chapter{Cache Coherence, OpenMP Sharing Issues, Performance}
+
+\section{Multiprocessor Sharing}
+Key Questions:
+\begin{enumerate}
+    \item How do they share data?
+    \item How do they coordinate?
+    \item How many processors can be supported?
+\end{enumerate}
+
+\subsection{Shared Memory Multiprocessor (SMP)}
+SMPs contain two or more identical CPUs and a single shared coherent memory. To answer the above questions:`
+\begin{enumerate}
+    \item Single physical address space shared by all processors/cores
+    \item Processors coordinate/communicate through shared variables in memory (via loads and stores)
+    \item Depends on the workload
+\end{enumerate}
+
+\subsection{Multiprocessor Caches}
+\begin{itemize}
+    \item Memory is a performance bottleneck even with one processor
+    \item Use caches to reduce bandwidth demands on main memory
+    \item Each core has a local private cache
+    \item Only cache misses have to access the shared common memory
+\end{itemize}
+
+
+\section{Multiprocessor Cache Coherency}
+Since there are multiple caches, there might be multiple copies of a piece of data floating around in the system. When any processor has cache miss or writes, we must notify other processors via an interconnection network.
+
+Each cache block tracks the following states:
+\begin{description}
+	\item[Shared:] up-to-date data, other caches may have a copy.
+	\item[Modified:] up-to-date data, changed (dirty), no other cache has a copy, can write back, memory out-of-date.
+	\item[Exclusive:] up-to-date data, no other cache has a copy, can write back, memory up-to-date.
+	\item[Owner:] up-to-date data, other \emph{shared} caches may have a copy, memory not up-to-date.
+\end{description}
+
+\subsection{MOESI}
+Memory access to cache is one of the following:
+\begin{itemize}
+    \item \emph{Modified}: I have the only copy, can write, and it's dirty.
+    \item \emph{Owned}: I have the official copy, can write, and it's dirty. When writing, I have to tell everyone else I am writing (and it turns Modified).
+    \item \emph{Exclusive}: I have the only copy.
+    \item \emph{Shared}: I have a copy and can read away.
+    \item \emph{Invalid}
+\end{itemize}
+\begin{itemize}
+    \item Invalid is not in cache
+\end{itemize}
+
+\section{Coherency Miss}
+If data are shared between two processor cores, every time one does a write, the other will take a \emph{coherency miss} on the next read or write. 
