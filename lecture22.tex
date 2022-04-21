@@ -1,1 +1,56 @@
 \chapter{Virtual Memory I}
+
+\section{Motivation: Problems with Memory}
+\begin{enumerate}
+    \item Not enough space
+    \item Holes in address space (memory fragmentation)
+    \item Programs may crash/corrupt if multiple programs access the same memory address
+\end{enumerate}
+
+\section{Virtual Memory}
+Virtual memory takes program addresses and maps them to physical RAM addresses. The program only sees the virtual address. Virtual memory helps enforce isolation: each program thinks it's running by itself.
+
+\medskip
+
+How does a program access memory?
+\begin{enumerate}
+    \item Program executes a load specifying a virtual address (VA)
+    \item Computer translates the address to the physical address (PA) in memory
+    \item If the PA is not in memory, the OS loads it from disk
+    \item The computer reads the RAM using the PA and returns the data to the program
+\end{enumerate}
+
+\section{Page Tables}
+Page table is the map from VA to PA. Suppose we have one entry for every word in our address space, we would have $2^{32}$ (total memory) $2^2$ (byte/word) $= 2^{30}$ entries. We want to reduce the number of entries in the page table by dividing memory into chunks (\emph{pages}) rather than words. A virtual page number (VPN) maps to a physical page number (PPN).
+
+\subsection{Address Translation}
+Both VA and PA store their respective page numbers and a page offset.
+
+\subsection{Page Faults}
+What happens when a page is not in RAM?
+\begin{enumerate}
+    \item Hardware (CPU) generates a \emph{page fault exception}
+    \item The hardware jumps to the OS page fault handler to fix it
+    \item The OS chooses a page to evict from RAM (if no more free space)
+    \item If the page is dirty, it needs to be written back to disk first
+    \item The OS updates the corresponding page table entry (PTE) to point to disk
+    \item The OS brings in the page we wanted disk and puts it in RAM
+    \item The OS updates the PTE of the new page
+    \item The OS jumps back to the instruction that caused the page fault (This
+time it won’t cause a page fault since the page has been loaded.)
+\end{enumerate}
+
+\subsection{Page Replacement Policies}
+Generally, there is a tradeoff between performance and cost (metadata).
+\begin{itemize}
+    \item First in, first out (FIFO)
+    \item Least recently used (LRU)
+    \item Random
+\end{itemize}
+
+\subsection{Page Table Metadata}
+\begin{description}
+    \item[Valid:] 1 if page is in RAM and mapping is valid
+    \item[Dirty:] 1 if page on RAM is more up to date than page on disk
+    \item[Permission Bits:] for read, write, execute
+\end{description}

@@ -1,1 +1,26 @@
 \chapter{Virtual Memory II}
+
+\section{Memory Access}
+With VM, we need to access memory twice each time when accessing a piece of data.
+\begin{enumerate}
+    \item Read the page table to perform the address translation
+    \item Use the translated address to read the data
+\end{enumerate}
+
+\subsection{Translation Lookaside Buffer}
+Every instruction and data access requires looking up an address and checking bit flags. To make this happen in less than one cycle, use \emph{translation lookaside buffers}. A TLB is a fully associative cache for the page table \((\text{virtual page number})\to(\text{physical page number})\).
+
+\section{Multi-level Page Tables}
+Idea: add more indirection. The first level page table must always be in RAM while the second level page tables can be paged out to disk.
+
+\section{Caches and VM}
+
+Physically indexed, physically tagged cache allows for multiple processes to use the same cache. Virtually indexed, virtually tagged caches does not allow this due to synonyms and homonyms.
+
+\begin{description}
+    \item[Synonyms:] different virtual addresses can map to the same physical address
+    \item[Homonyms:] same virtual address can map to different physical addresses
+\end{description}
+
+\subsection{Virtually Indexed, Physically Tagged Cache}
+We want to use the physical address to access the cache to avoid synonym and homonym problem
