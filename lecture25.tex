@@ -1,1 +1,54 @@
 \chapter{Dependability, Parity, ECC, RAID}
+
+\section{Networks}
+Networks are links connecting switches and/or routers to each other and to computers/devices.
+
+\medskip
+
+Steps to send:
+\begin{enumerate}
+	\item App copies into OS buffer.
+	\item OS builds packet and starts timer.
+	\item OS sends data to network interface and says to start.
+\end{enumerate}
+
+Steps to receive:
+\begin{enumerate}
+	\item OS copies data from interface into buffer.
+	\item OS checks checksum: ACK if okay, otherwise ignore (sender will resend on timer).
+	\item Copy data to memory map, interrupt to resume.
+\end{enumerate}
+
+\section{Dependability}
+Design principle: no single points of failure. Dependability behaves like speedup of Amdhal's Law, i.e. it is limited by the weakest link.
+
+\subsection{Dependability Measures}
+\begin{itemize}
+    \item Reliability: Mean Time to Failure (MTTF)
+    \item Service interruption: Mean Time to Repair (MTTR)
+    \item Mean Time Between Failures (MTBF) = MTTF + MTTR
+    \item Availability = MTTF / (MTTF + MTTR)
+    \item Annualized Failure Rate (AFR)
+\end{itemize}
+
+\section{Error Detection/Correction Codes (EDC/ECC)}
+Memory systems generate errors by accidentally flipping bits. We can add bits to data to detect and correct errors.
+
+\subsection{Parity Bit}
+We tag each data value with an extra bit to force the stored word to have \emph{even parity}. Odd numbers of errors are detected.
+
+\subsection{Hamming ECC}
+Hamming distance is the number of bits in positions where words differ.
+
+\section{Redundancy Arrays of (Inexpensive) Disks (RAID)}
+Idea: Redundancy yields high data availability; files are "striped" across multiple disks.
+
+There are 6 RAID levels:
+\begin{enumerate}
+    \item RAID 0: Spread data across multiple disks. Improves bandwidth linearly but does not really help latency.
+    \item RAID 1: For every disk of data, make a full copy of it and put it on another disk. Very high availability where writes limited by single-disk speed. Very expensive in terms of capacity
+    \item RAID 2: Hamming code for error correction. Bits of a data block are distributed across all disks.
+    \item RAID 3: Have one disk store the parity. Parity is determined per bit stripe where you add the bits along the row and mod 2.
+    \item RAID 4: Interleave data at the sector level (data block) rather than bit level - permits more parallelism (independent small reads, parallel large reads).
+    \item RAID 5: Parity blocks are spread between disks.
+\end{enumerate}
