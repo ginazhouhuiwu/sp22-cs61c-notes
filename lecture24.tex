@@ -1,39 +1,30 @@
-\chapter{Virtual Memory III, I/O}
+\chapter{I/O}
 
+\section{Thrashing}
+Thrashing occurs when the processor encounters page faults so frequently that the time spent resolving the page faults overwhelms the time spent performing the computations. 
 
-How does the processor do I/O?
+\section{Input/Output}
+Any transfer of information to or from the CPU/memory (e.g. interaction with keyboards, speakers, etc.) is considered I/O. 
+
+\subsection{Memory Mapped I/O}
+\begin{itemize}
+    \item A portion of memory is dedicated for communicating with I/O devices
+    \item Addresses in this area correspond to different I/O devices
+    \item When the CPU wants to send information to an I/O device, it writes to the device corresponding to a specific memory address
+\end{itemize}
+
+\subsection{Polling}
+The CPU periodically checks the status register to see if there is any data to receive. Polling reads from control register in loop and waits for the device to set the ready bit. The processor then loads from input or writes to output. Polling typically occurs while we are performing a context switch.
+
+\section{Direct Memory Access}
+The DMA engine controls movement of data between the memory and the I/O devices such that the CPU can do other work.
+
+\medskip
+
+When we have incoming dat, the DMA performs the following:
 \begin{enumerate}
-	\item Special input/output instructions (e.g.~per device, tuned to hardware).
-	\item Memory-mapped I/O: I/O devices are named by memory addresses; load/store using normal instructions. There are a lot of control (key down) and data (what key?) registers.
-\end{enumerate}
-Two ways to handle I/O:
-\begin{description}
-	\item[polling] wait for device to set \texttt{ready} bit, then read/write. (\texttt{ready} could be read or write control.)
-	\item[interrupt] when I/O is ready or needs attention, control is sent to the \emph{interrupt handler}.
-\end{description}
-Traps are the software mechanism for dealing with unusual behavior.
-\begin{description}
-	\item[interrupts] are asynchronous signals (e.g.~I/O is ready) to enter the trap handler.
-	\item[exceptions] are synchronous errors (e.g.~illegal memory R/W)
-\end{description}
-How is an interrupt handled?
-\begin{enumerate}
-	\item Instruction stream is suspended.
-	\item CPU looks up the vector (function address) of interrupt handler in \emph{interrupt vector table} stored in CPU.
-	\item \textsc{jal} to the handler, save PC in \textbf{M}achine \textbf{E}xception \textbf{P}rogram \textbf{Counter}.
-	\item Handler runs, then returns:
-\begin{minted}{asm}
-handler: save registers
-         decode interrupt
-         handle interrupt
-         clear interrupt
-         restore registers
-         mret
-\end{minted}
-\end{enumerate}
-Exceptions are handled like pipeline hazards on a pipelined CPU:
-\begin{enumerate}
-	\item Complete instructions begun before exception.
-	\item Flush instructions currently in pipeline.
-	\item (optional) Store exception cause in status register.
+    \item Receive interrupt from device
+    \item CPU takes interrupt, initiates transfer $\implies$ Instructs DMA engine to place data at certain address
+    \item DMA engine handles the transfer $\implies$ CPU is free to execute other things
+    \item Upon completion, DMA engine interrupts the CPU again
 \end{enumerate}
