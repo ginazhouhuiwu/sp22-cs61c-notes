@@ -39,11 +39,11 @@ Each cache block tracks the following states:
 \subsection{MOESI}
 Memory access to cache is one of the following:
 \begin{itemize}
-    \item \emph{Modified}: I have the only copy, can write, and it's dirty.
-    \item \emph{Owned}: I have the official copy, can write, and it's dirty. When writing, I have to tell everyone else I am writing (and it turns Modified).
+    \item \emph{Modified}: I have the only copy, can write, and it's dirty. If this gets evicted, I need to flush the entry.
+    \item \emph{Owned}: I have the official copy, can write, and it's dirty. When writing, I have to tell everyone else I am writing and it turns Modified.
     \item \emph{Exclusive}: I have the only copy.
     \item \emph{Shared}: I have a copy and can read away.
-    \item \emph{Invalid}
+    \item \emph{Invalid}: I don't even have this.
 \end{itemize}
 \begin{itemize}
     \item Invalid is not in cache

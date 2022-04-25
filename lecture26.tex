@@ -1,1 +1,39 @@
 \chapter{Warehouse-Scale Computing}
+
+\section{Warehouse-Scale Computers}
+Design goals of a WSC:
+\begin{itemize}
+    \item Ample parallelism
+    \item Scale and its opportunities/problems
+    \item Operational costs count
+\end{itemize}
+
+\section{Power Usage Effectiveness}
+PUE = Total Building Power / IT Equipment Power
+\begin{itemize}
+    \item 1.0 = perfection
+\end{itemize}
+
+\section{Request-Level Parallelism}
+RLP represents tasks as a set of largely independent user requests. Computation is easily partitioned across different requests and is load balanced at the DNS level.
+
+\section{Data-Level Parallelism}
+DLP distributes data across different nodes, which operate on the data in parallel. DLP on WSC supports parallelism across multiple machines.
+
+\subsection{MapReduce}
+Simple data-parallel programming model designed for scalability and fault-tolerance. Users specify the computation in terms of a \emph{map} function and a \emph{reduce} function.
+
+\medskip
+
+Underlying runtime system:
+\begin{itemize}
+    \item Automatically parallelize the computation across large scale clusters of machines
+    \item Handles machine failure
+    \item Schedule inter-machine communication to make efficient use of the networks
+\end{itemize}
+
+\subsection{Spark}
+Apache Spark is a fast and general engine for large-scale data processing.
+
+
+
