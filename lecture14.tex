@@ -55,7 +55,7 @@ Pipelining doesn't help with the \emph{latency} of a single task (time to travel
 \subsection{Control}
 \begin{description}
 	\item[Problem:] Instruction 1 has a branch. The next two instructions are executed regardless of branch outcome.
-	\item[Solution:] If the branch is not taken, then instructions fetched sequentially after branch are correct. If the branch/jump is taken, then we need to flish (kill) incorrect instructions from pipeline by converting to NOPs.
+	\item[Solution:] If the branch is not taken, then instructions fetched sequentially after branch are correct. If the branch/jump is taken, then we need to flush (kill) incorrect instructions from pipeline by converting to NOPs.
 \end{description}
 
 \section{Superscalar Processors}
